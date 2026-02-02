@@ -24,6 +24,7 @@ Route::post('register', RegisterController::class)->name('register.store');
 
 
 // Dashboard Route (Protected)
+//ja wirklich
 
 Route::get('dashboard', function () {
     return view('dashboard');
