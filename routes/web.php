@@ -1,0 +1,30 @@
+<?php
+
+use App\Http\Controllers\LoginController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RegisterController;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// Login and Registration Routes
+Route::get('login', function () {
+    return view('auth.login');
+})->name('login');
+
+Route::post('login', LoginController::class)->name('login.attempt');
+
+Route::get('register', function () {
+    return view('auth.register');
+})->name('register');
+
+Route::post('register', RegisterController::class)->name('register.store');
+
+
+
+// Dashboard Route (Protected)
+
+Route::get('dashboard', function () {
+    return view('dashboard');
+})->middleware('auth')->name('dashboard');  
