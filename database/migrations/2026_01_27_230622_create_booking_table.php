@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('booking', function (Blueprint $table) {
             $table->integer('booking_id')->primary();
-            $table->integer('user_id')->index('user_id');
+            $table->integer('patient_id')->index('patient_id');
             $table->integer('handling_id')->index('handling_id');
-            $table->timestamp('startsat')->nullable();
-            $table->timestamp('endsat')->nullable();
+            $table->date('datum');
+            $table->time('startsat');
+            $table->time('endsat');
             $table->text('usernote')->nullable();
             $table->text('staffnote')->nullable();
-            $table->enum('state', ['pending', 'confirmed', 'cancelled']);
+            $table->enum('state', ['pending', 'confirmed', 'cancelled'])->nullable();
             $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent(); // last version 
         });
     }
 

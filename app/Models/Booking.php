@@ -36,14 +36,15 @@ class Booking extends Model
 
 	protected $casts = [
 		'booking_id' => 'int',
-		'user_id' => 'int',
+		'patient_id' => 'int',
 		'handling_id' => 'int',
-		'startsat' => 'datetime',
-		'endsat' => 'datetime'
+		'date' => 'date',
+		'startsat' => 'time',
+		'endsat' => 'time'
 	];
 
 	protected $fillable = [
-		'user_id',
+		'patient_id',
 		'handling_id',
 		'startsat',
 		'endsat',

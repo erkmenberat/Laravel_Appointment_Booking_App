@@ -7,15 +7,199 @@
 
     <title>{{ config('app.name', 'Terminplattform') }}</title>
 
-   <style href="{{ asset('css/app.css') }}"></style>
+   {{--<style href="{{ asset('css/app.css') }}"></style>--}}
+   {{--<link rel="stylesheet" href="{{ asset('css/app.css') }}">--}}
+   @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
-<body>
-    <button class="btn">Button</button>
+
+<body class="min-h-screen bg-base-200 text-base-content">
+    {{-- Topbar --}}
+    <header class="navbar bg-base-100 shadow-sm">
+        <div class="container mx-auto px-4">
+           
+                <a href="{{ route('welcome') }}" class="text-lg font-semibold ">
+                    Dr.Steinbauer
+                </a>
+            
+
+                <label for="">Admin? ➜</label>
+      <a href="{{ route('login') }}">
+        <button class="btn w-64 rounded-full">Zur Login</button>
+      </a>
+            
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <h1 class="text-3xl font-bold">Willkommen!</h1>
+                <p class="text-base-content/70">Bitte wählen Sie den Termin-Grund, einen Tag und ein Zeitfenster.</p>
+
+                <div class="divider my-2"></div>
+
+                {{--<form method="POST" action="{{ route('appointments.request') }}" class="grid gap-8 lg:grid-cols-2">--}}
+                    @csrf
+
+                    {{-- LEFT: Reason + Calendar + Slots --}}
+                    <section class="space-y-6">
+                        {{-- Reason --}}
+                        <div class="space-y-2">
+                            <div class="font-semibold">Termin Grund auswählen:</div>
+
+                            <div class="flex flex-wrap gap-2">
+                                {{-- Radio "button" group (DaisyUI) --}}
+                                <input type="radio" name="reason" value="zahn" class="btn" aria-label="Zahn" checked />
+                                <input type="radio" name="reason" value="kopf" class="btn" aria-label="Kopf" />
+                                <input type="radio" name="reason" value="haut" class="btn" aria-label="Haut" />
+                                <input type="radio" name="reason" value="lunge" class="btn" aria-label="Lunge" />
+                            </div>
+                        </div>
+
+                        {{-- Day + Calendar + Slots --}}
+                        <div class="grid gap-6 md:grid-cols-2">
+                            {{-- Calendar --}}
+                            <div class="space-y-2">
+                                <div class="font-semibold">Tag auswählen:</div>
+
+                                  <button popovertarget="cally-popover1" class="input input-border" id="cally1" style="anchor-name:--cally1">
+                                    Pick a date
+                                  </button>
+                                  <div popover id="cally-popover1" class="dropdown bg-base-100 rounded-box shadow-lg" style="position-anchor:--cally1">
+                                      <calendar-date class="cally" onchange={document.getElementById('cally1').innerText = this.value}>
+                                      <svg aria-label="Previous" class="fill-current size-4" slot="previous" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg>
+                                      <svg aria-label="Next" class="fill-current size-4" slot="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg>
+                                      <calendar-month></calendar-month>
+                                    </calendar-date>
+                                  </div>
+
+                            {{-- Slots --}}
+                            <div class="space-y-2">
+                                <div class="font-semibold">
+                                    Offene Zeitfenster:
+                                    <span class="text-xs font-normal opacity-70">(für den ausgewählten Tag)</span>
+                                </div>
+
+                                <div class="rounded-box bg-base-200 p-4">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        @php
+                                            $slots = [
+                                                '10:00-10:45',
+                                                '11:00-11:45',
+                                                '12:00-12:45',
+                                                '13:00-13:45',
+                                                '14:00-14:45',
+                                                '15:00-15:45',
+                                            ];
+                                        @endphp
+
+                                        @foreach ($slots as $idx => $slot)
+                                            @php
+                                                $isTaken = in_array($idx, [2]); // demo: one taken
+                                            @endphp
+
+                                            <label class="cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="slot"
+                                                    value="{{ $slot }}"
+                                                    class="peer hidden"
+                                                    {{ $idx === 0 ? 'checked' : '' }}
+                                                    {{ $isTaken ? 'disabled' : '' }}
+                                                />
+
+                                                <div
+                                                    class="btn btn-outline w-full justify-center
+                                                           peer-checked:btn-primary peer-checked:text-primary-content
+                                                           peer-disabled:opacity-40 peer-disabled:line-through"
+                                                >
+                                                    {{ str_replace('-', ' – ', $slot) }}
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+
+                                    <div class="mt-3 text-xs opacity-70">
+                                        Beispiel: 10:00 – 10:45 Uhr
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {{-- RIGHT: Contact form + Submit --}}
+
+                    <section>
+                      <form action="{{ route('patient.store') }}" method="POST">
+                        @csrf 
+
+                          <p>AnmeldeFormular</p>
+
+                          <label>Vorname
+                            <input type="text" name="firstname" class="input input-bordered w-full">
+                          </label>
+
+                          <label>Nachname
+                            <input type="text" name="lastname" class="input input-bordered w-full">
+                          </label>
+
+                          <label>Adresse
+                            <input type="text" name="adress" class="input input-bordered w-full">
+                          </label>
+                          
+                          <label>Telefonnummer
+                            <input type="text" name="phone_number" class="input input-bordered w-full"> 
+                          </label>
+
+                          <label>Email
+                            <input type="email" name="email" class="input input-bordered w-full">
+                          </label>
+
+                          <label>Notiz
+                            <textarea name="note" class="input input-bordered w-full"></textarea>
+                          </label>
+
+                          <button type="submit" class="btn btn-primary w-full">Termin anfragen</button>
+
+                      </form>
+                    </section>
+                    
+            </div>
+        </div>
+    </main>
 </body>
 </html>
 
 
  {{-- 
+
+
+<body>
+    <div class="navbar bg-white shadow-sm">
+      <div class="flex-1">
+        <a href="{{ route('welcome') }}" class="btn btn-ghost text-xl">Dr.Steinbauer</a>
+      </div>  
+      <label for="">Admin? ➜</label>
+      <a href="{{ route('login') }}">
+        <button class="btn w-64 rounded-full">Zur Login</button>
+      </a>
+    </div>
+    <div class="card bg-base-100 shadow p-6">
+      <h1 class="text-3xl font-semibold">Willkommen zur Terminverwaltung von Dr. Steinbauer</h1>
+      <div>
+
+      </div>
+    </div>
+    <div class="space-y-4">
+  <input class="input input-bordered " placeholder="Email">
+  <input class="input input-bordered w-full" placeholder="Password">
+</div>
+
+</body>
+
+
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -209,4 +393,4 @@
         <div>
             <h1 class="">Willkommen zur Neurologie Dr.Steinbauer</h1>
         </div>
-    </body> --}}
+</body> --}}
