@@ -11,8 +11,8 @@ class Patient extends Model
     public $incrementing = true;
 
     protected $fillable = [
-        'firstname',
-        'lastname',
+        'first_name',
+        'last_name',
         'address',
         'phone_number',
         'email',

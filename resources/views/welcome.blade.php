@@ -137,15 +137,20 @@
                           <p>AnmeldeFormular</p>
 
                           <label>Vorname
-                            <input type="text" name="firstname" class="input input-bordered w-full">
+                            <input type="text" name="first_name" class="input input-bordered w-full">
+                              @error('first_name')
+                                <div role="alert" class="alert alert-error alert-soft">
+                                  <span>{{ $message }}.</span> {{-- Fehlermeldung für Vorname es müssen noch die anderen platziert werden. --}}
+                                </div>
+                              @enderror
                           </label>
 
                           <label>Nachname
-                            <input type="text" name="lastname" class="input input-bordered w-full">
+                            <input type="text" name="last_name" class="input input-bordered w-full">
                           </label>
 
                           <label>Adresse
-                            <input type="text" name="adress" class="input input-bordered w-full">
+                            <input type="text" name="address" class="input input-bordered w-full">
                           </label>
                           
                           <label>Telefonnummer
@@ -161,8 +166,26 @@
                           </label>
 
                           <button type="submit" class="btn btn-primary w-full">Termin anfragen</button>
+                          
+                          {{-- Added errors for debugging and better ux. --}}
+                      
 
-                      </form>
+                          @error('last_name')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                          @enderror
+
+                          @error('address')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                          @enderror
+
+                          @error('phone_number')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                          @enderror
+
+                          @error('email')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                          @enderror
+                        </form>
                     </section>
                     
             </div>

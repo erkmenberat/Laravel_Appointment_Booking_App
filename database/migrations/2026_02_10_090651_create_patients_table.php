@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
 
-            $table->integer('patient_id')->primary();
-            $table->varchar('firstname');
-            $table->varchar('lastname');
+            $table->increments('patient_id')->primary();
+            $table->varchar('first_name');
+            $table->varchar('last_name');
             $table->varchar('address');
             $table->varchar('phone_number');
             $table->varchar('email');
