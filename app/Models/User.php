@@ -1,59 +1,40 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
-use Auth;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection; 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
-/**
- * Class User
- * 
- * @property int    $user_id
- * @property string $name
- * @property string $surname
- * @property string $email
- * @property string $passwordhash
- * @property string $role
- * @property Carbon $created_at
- * @property Carbon $updated_at
- * 
- * @property Collection|Booking[] $bookings
- *
- * @package App\Models
- */
 class User extends Authenticatable
 {
-	protected $table = 'users';
-	protected $primaryKey = 'user_id';
-	public $incrementing = true;
-	public $keytype = 'int';
+    use Notifiable;
 
-	protected $casts = [
-		'user_id' => 'int'
-	];
+    protected $table = 'users';
 
-	protected $fillable = [
-		'name',
-		'surname',
-		'email',
-		'passwordhash',
-		'role'
-	];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role',
+        'is_active',
+    ];
 
-	public function bookings()
-	{
-		return $this->hasMany(Booking::class);
-	}
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
-	public function getAuthPasswordName()
-	{
-    	return 'passwordhash';
-	}
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'staff_id');
+    }
+
+    public function timeOff()
+    {
+        return $this->hasMany(TimeOff::class, 'staff_id');
+    }
 }

@@ -11,17 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patients', function (Blueprint $table) {
-
-            $table->increments('patient_id')->primary();
-            $table->varchar('first_name');
-            $table->varchar('last_name');
-            $table->varchar('address');
-            $table->varchar('phone_number');
-            $table->varchar('email');
+        Schema::create('customers', function (Blueprint $table) {
+            $table->id();
+            $table->string('first_name', 100);
+            $table->string('last_name', 100);
+            $table->string('phone', 30);
+            $table->string('email', 254)->nullable();
             $table->text('note')->nullable();
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent(); // last version 
+            $table->timestamps();
+
+            $table->unique('phone', 'unique_phone');
+            $table->unique('email', 'unique_email');
+            $table->index(['last_name', 'first_name'], 'idx_name');
         });
     }
 
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('patients');
+        Schema::dropIfExists('customers');
     }
 };

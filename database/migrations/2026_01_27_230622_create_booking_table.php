@@ -11,18 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('booking', function (Blueprint $table) {
-            $table->integer('booking_id')->primary();
-            $table->integer('patient_id')->index('patient_id');
-            $table->integer('handling_id')->index('handling_id');
-            $table->date('datum');
-            $table->time('startsat');
-            $table->time('endsat');
-            $table->text('usernote')->nullable();
-            $table->text('staffnote')->nullable();
-            $table->enum('state', ['pending', 'confirmed', 'cancelled'])->nullable();
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent(); // last version 
+        Schema::create('appointments', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('customer_id');
+            $table->unsignedBigInteger('service_id');
+            $table->unsignedBigInteger('staff_id')->nullable();
+            $table->date('date');
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->enum('status', ['requested', 'confirmed', 'cancelled', 'completed'])->default('requested');
+            $table->text('customer_note')->nullable();
+            $table->text('staff_note')->nullable();
+            $table->string('cancel_reason', 255)->nullable();
+            $table->timestamp('cancelled_at')->nullable();
+            $table->timestamps();
+
+            $table->index('date', 'idx_date');
+            $table->index('staff_id', 'idx_staff_id');
+            $table->index('status', 'idx_status');
+            $table->index(['date', 'start_time', 'staff_id'], 'idx_date_time_staff');
+            $table->index('customer_id', 'idx_customer_id');
+            $table->index('service_id', 'idx_service_id');
         });
     }
 
@@ -31,6 +40,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('booking');
+        Schema::dropIfExists('appointments');
     }
 };
