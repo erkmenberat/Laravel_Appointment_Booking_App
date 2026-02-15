@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\PatientFormController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 
@@ -54,8 +53,4 @@ Route::get('welcome', function () {
     return view('welcome');
 })->name('welcome');
 
-Route::get('patient', function () { // wie kann man route für Patient Formular machen !!!!!!!!!
-    return view('patient-form');
-})->name('patient-form');
 
-Route::post('patient', PatientFormController::class)->name('patient.store');
