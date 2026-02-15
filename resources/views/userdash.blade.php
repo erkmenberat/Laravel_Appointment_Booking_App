@@ -1,3 +1,3 @@
 <div>
-    <!-- The whole future lies in uncertainty: live immediately. - Seneca -->
+    {{-- Platzhalter für ein zukünftiges User-Dashboard --}}
 </div>

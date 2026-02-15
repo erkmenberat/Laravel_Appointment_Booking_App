@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Legt die Tabelle für Termine inkl. wichtiger Indizes an.
      */
     public function up(): void
     {
         Schema::create('appointments', function (Blueprint $table) {
+            // Primärdaten des Termins
             $table->id();
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('service_id');
@@ -26,6 +27,7 @@ return new class extends Migration
             $table->timestamp('cancelled_at')->nullable();
             $table->timestamps();
 
+            // Indizes für typische Filter-/Suchabfragen
             $table->index('date', 'idx_date');
             $table->index('staff_id', 'idx_staff_id');
             $table->index('status', 'idx_status');
@@ -36,7 +38,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Entfernt die Tabelle wieder.
      */
     public function down(): void
     {

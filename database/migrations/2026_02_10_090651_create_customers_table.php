@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Legt die Kundentabelle inklusive eindeutiger Kontaktdaten an.
      */
     public function up(): void
     {
         Schema::create('customers', function (Blueprint $table) {
+            // Stammdaten des Kunden
             $table->id();
             $table->string('first_name', 100);
             $table->string('last_name', 100);
@@ -20,6 +21,7 @@ return new class extends Migration
             $table->text('note')->nullable();
             $table->timestamps();
 
+            // Duplikate verhindern und Namenssuche beschleunigen
             $table->unique('phone', 'unique_phone');
             $table->unique('email', 'unique_email');
             $table->index(['last_name', 'first_name'], 'idx_name');
@@ -27,7 +29,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Entfernt die Tabelle wieder.
      */
     public function down(): void
     {

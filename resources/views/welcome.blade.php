@@ -1,4 +1,4 @@
-{{-- resources/views/welcome.blade.php --}}
+{{-- Startseite für Terminanfrage mit Auswahl von Grund, Datum und Kontaktdaten. --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
@@ -14,7 +14,7 @@
 </head>
 
 <body class="min-h-screen bg-base-200 text-base-content">
-    {{-- Topbar --}}
+    {{-- Kopfzeile/Navigationsbereich --}}
     <header class="navbar bg-base-100 shadow-sm">
         <div class="container mx-auto px-4">
            
@@ -42,14 +42,14 @@
                 {{--<form method="POST" action="{{ route('appointments.request') }}" class="grid gap-8 lg:grid-cols-2">--}}
                     @csrf
 
-                    {{-- LEFT: Reason + Calendar + Slots --}}
+                    {{-- Linker Bereich: Terminart, Datum und freie Zeitfenster --}}
                     <section class="space-y-6">
-                        {{-- Reason --}}
+                        {{-- Termingrund-Auswahl --}}
                         <div class="space-y-2">
                             <div class="font-semibold">Termin Grund auswählen:</div>
 
                             <div class="flex flex-wrap gap-2">
-                                {{-- Radio "button" group (DaisyUI) --}}
+                                {{-- Auswahl als Radio-Buttons im Button-Stil --}}
                                 <input type="radio" name="reason" value="zahn" class="btn" aria-label="Zahn" checked />
                                 <input type="radio" name="reason" value="kopf" class="btn" aria-label="Kopf" />
                                 <input type="radio" name="reason" value="haut" class="btn" aria-label="Haut" />
@@ -57,9 +57,9 @@
                             </div>
                         </div>
 
-                        {{-- Day + Calendar + Slots --}}
+                        {{-- Datum + Kalender + Zeitfenster --}}
                         <div class="grid gap-6 md:grid-cols-2">
-                            {{-- Calendar --}}
+                            {{-- Kalenderauswahl --}}
                             <div class="space-y-2">
                                 <div class="font-semibold">Tag auswählen:</div>
 
@@ -74,7 +74,7 @@
                                     </calendar-date>
                                   </div>
 
-                            {{-- Slots --}}
+                            {{-- Verfügbare Zeitfenster --}}
                             <div class="space-y-2">
                                 <div class="font-semibold">
                                     Offene Zeitfenster:
@@ -96,7 +96,7 @@
 
                                         @foreach ($slots as $idx => $slot)
                                             @php
-                                                $isTaken = in_array($idx, [2]); // demo: one taken
+                                                $isTaken = in_array($idx, [2]); // Demo: ein Slot ist bereits belegt.
                                             @endphp
 
                                             <label class="cursor-pointer">
@@ -128,7 +128,7 @@
                         </div>
                     </section>
 
-                    {{-- RIGHT: Contact form + Submit --}}
+                    {{-- Rechter Bereich: Kontaktdaten + Absenden --}}
 
                     <section>
                       <form action="{{ route('patient.store') }}" method="POST">
@@ -167,7 +167,7 @@
 
                           <button type="submit" class="btn btn-primary w-full">Termin anfragen</button>
                           
-                          {{-- Added errors for debugging and better ux. --}}
+                          {{-- Validierungsfehler kompakt unter dem Formular ausgeben --}}
                       
 
                           @error('last_name')

@@ -8,11 +8,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Legt Öffnungszeiten an und erzeugt 7 Standardzeilen (Mo-So).
      */
     public function up(): void
     {
         Schema::create('business_hours', function (Blueprint $table) {
+            // Öffnungsdaten je Wochentag
             $table->id();
             $table->unsignedTinyInteger('weekday')->comment('1=Montag, 7=Sonntag');
             $table->time('open_time')->nullable();
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->unique('weekday', 'unique_weekday');
         });
 
+        // Initiale Platzhalterwerte für alle Wochentage anlegen
         $rows = [];
         for ($weekday = 1; $weekday <= 7; $weekday++) {
             $rows[] = [
@@ -39,7 +41,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Entfernt die Tabelle wieder.
      */
     public function down(): void
     {

@@ -4,10 +4,13 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * Zentraler Service Provider für globale Registrierungen und Boot-Logik.
+ */
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Registriert Services im Container.
      */
     public function register(): void
     {
@@ -15,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Führt Initialisierung beim Start der Anwendung aus.
      */
     public function boot(): void
     {

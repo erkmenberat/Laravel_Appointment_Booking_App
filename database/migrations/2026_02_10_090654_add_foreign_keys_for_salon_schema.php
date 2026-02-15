@@ -7,10 +7,11 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ergänzt Fremdschlüsselbeziehungen zwischen den Kern-Tabellen.
      */
     public function up(): void
     {
+        // Beziehungen für Termine
         Schema::table('appointments', function (Blueprint $table) {
             $table->foreign('customer_id', 'fk_appointments_customer')
                 ->references('id')
@@ -29,6 +30,7 @@ return new class extends Migration
                 ->onUpdate('cascade');
         });
 
+        // Beziehung für Abwesenheiten
         Schema::table('time_off', function (Blueprint $table) {
             $table->foreign('staff_id', 'fk_time_off_staff')
                 ->references('id')
@@ -37,6 +39,7 @@ return new class extends Migration
                 ->onUpdate('cascade');
         });
 
+        // Beziehung für Benachrichtigungen
         Schema::table('notifications', function (Blueprint $table) {
             $table->foreign('appointment_id', 'fk_notifications_appointment')
                 ->references('id')
@@ -47,7 +50,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Entfernt die zuvor angelegten Fremdschlüssel wieder.
      */
     public function down(): void
     {

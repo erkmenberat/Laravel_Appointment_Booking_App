@@ -1,6 +1,7 @@
 <x-layout>
+    {{-- Lokale Formular-Styles nur für diese Seite --}}
     <style>
-        /* From Uiverse.io by Yaya12085 */ 
+        /* Stilvorlage für das Login-Formular */ 
 .form {
   display: flex;
   flex-direction: column;
@@ -133,6 +134,7 @@
 }
     </style>
 
+    {{-- Login-Formular mit CSRF-Schutz --}}
     <form class="form" action="{{ route('login.attempt') }}" method="POST">
         @csrf
     <p class="title">Login</p>
@@ -155,5 +157,4 @@
     <p class="signin">Dont have an account yet? <a href="{{ route('register') }}">Register</a> </p>
 </form>
 </x-layout>
-
 

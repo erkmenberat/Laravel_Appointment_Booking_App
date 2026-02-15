@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Legt die Tabelle für Benachrichtigungsprotokolle an.
      */
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
+            // Versand- und Statusdaten
             $table->id();
             $table->unsignedBigInteger('appointment_id');
             $table->enum('channel', ['email'])->default('email');
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->text('error_message')->nullable();
             $table->timestamps();
 
+            // Indizes für Monitoring und Auswertung
             $table->index('appointment_id', 'idx_appointment_id');
             $table->index('status', 'idx_status');
             $table->index('sent_at', 'idx_sent_at');
@@ -29,7 +31,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Entfernt die Tabelle wieder.
      */
     public function down(): void
     {

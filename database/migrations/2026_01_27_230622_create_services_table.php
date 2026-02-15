@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Legt die Tabelle für angebotene Leistungen an.
      */
     public function up(): void
     {
         Schema::create('services', function (Blueprint $table) {
+            // Stammdaten einer Leistung
             $table->id();
             $table->string('name', 150);
             $table->unsignedInteger('duration')->comment('Dauer in Minuten');
@@ -19,12 +20,13 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
+            // Schneller Filter auf aktive Leistungen
             $table->index('is_active', 'idx_active');
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Entfernt die Tabelle wieder.
      */
     public function down(): void
     {

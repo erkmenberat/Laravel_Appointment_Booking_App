@@ -1,10 +1,13 @@
+/* Lädt Tailwind-Basis und Utility-Klassen. */
 @import "tailwindcss";
 
+/* Quellen, die Tailwind beim Klassen-Scan berücksichtigen soll. */
 @source "../**/*.blade.php";
 @source "../**/*.js";
 @source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
 @source "../../storage/framework/views/*.php";
 
+/* DaisyUI-Plugin mit aktivierten Light-/Dark-Themes. */
 @plugin "daisyui" {
    themes: light --default, dark --prefersdark;
  }

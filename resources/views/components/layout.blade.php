@@ -8,6 +8,7 @@
     <title>Login and Register Layout</title>
 
     <style>
+        /* Basislayout für Seiten mit einfachem, zentriertem Formularinhalt */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -25,6 +26,7 @@
     </style>
 </head>
 <body>
+    {{-- Platzhalter für den jeweiligen Seiteninhalt (Blade Slot) --}}
     <main>
         {{ $slot }}
     </main>

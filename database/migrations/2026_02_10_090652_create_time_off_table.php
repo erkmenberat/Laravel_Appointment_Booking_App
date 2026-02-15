@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Legt die Tabelle für Mitarbeiter-Abwesenheiten an.
      */
     public function up(): void
     {
         Schema::create('time_off', function (Blueprint $table) {
+            // Abwesenheitsdaten
             $table->id();
             $table->unsignedBigInteger('staff_id')->nullable();
             $table->date('date');
@@ -20,13 +21,14 @@ return new class extends Migration
             $table->string('reason', 255)->nullable();
             $table->timestamps();
 
+            // Indizes für Kalender-/Mitarbeiterabfragen
             $table->index('date', 'idx_date');
             $table->index(['staff_id', 'date'], 'idx_staff_date');
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Entfernt die Tabelle wieder.
      */
     public function down(): void
     {

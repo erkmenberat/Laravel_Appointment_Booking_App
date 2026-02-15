@@ -1,7 +1,8 @@
 <x-layout>
 
+{{-- Lokale Formular-Styles nur für diese Seite --}}
 <style>
-    /* From Uiverse.io by Yaya12085 */ 
+    /* Stilvorlage für das Registrierungsformular */ 
 .form {
   display: flex;
   flex-direction: column;
@@ -134,6 +135,7 @@
 }
 </style>
 
+{{-- Registrierungsformular mit CSRF-Schutz --}}
 <form class="form" action="{{ route('register.store') }}" method="POST">
     
         @csrf

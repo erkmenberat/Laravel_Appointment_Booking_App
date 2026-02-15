@@ -4,6 +4,7 @@ use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 
+// Startseite: Eingeloggte Nutzer direkt ins Dashboard leiten.
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
@@ -12,7 +13,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Login and Registration Routes
+// Authentifizierung: Login und Registrierung
 Route::get('login', function () {
     return view('auth.login');
 })->name('login');
@@ -31,24 +32,22 @@ Route::get('adminlogin', function () {
 
 Route::post('adminlogin', LoginController::class)->name('adminlogin.attempt');
 
-// Dashboard Route (Protected)
-//ja wirklich
-
+// Geschützter Bereich: nur für authentifizierte Nutzer.
 Route::get('dashboard', function () {
     return view('dashboard');
 })->middleware('auth')->name('dashboard');  
 
-// Logout Route
+// Logout: Session beenden und Token neu erzeugen.
 Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
 
-    return redirect('/'); // oder route('login')
+    return redirect('/'); // Alternativ: route('login')
 })->name('logout');
 
 
-//Route for Welcome Page (Home Page) Logo.
+// Direkte Route auf die Welcome-Seite.
 Route::get('welcome', function () {
     return view('welcome');
 })->name('welcome');
