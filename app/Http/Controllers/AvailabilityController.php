@@ -41,9 +41,18 @@ class AvailabilityController extends Controller
         $dayStart = Carbon::parse($validated['date'].' '.$businessHour->open_time);
         $dayEnd = Carbon::parse($validated['date'].' '.$businessHour->close_time);
 
-        // 5) Slot-Raster (z. B. alle 15 Min)
-        $stepMinutes = 30;
         $duration = (int) $service->duration;
+        if ($duration <= 0) {
+            return response()->json([
+                'date' => $validated['date'],
+                'service_id' => (int) $validated['service_id'],
+                'slots' => [],
+                'reason' => 'invalid_service_duration',
+            ], 422);
+        }
+
+        // 5) Kein ueberlappendes Raster: Start springt immer um die Service-Dauer.
+        $stepMinutes = $duration;
 
         $slots = [];
         $period = CarbonPeriod::create($dayStart, $stepMinutes.' minutes', $dayEnd);
