@@ -164,7 +164,7 @@
                           <button type="submit" class="btn btn-primary w-full">Termin anfragen</button>
                           
                           {{-- Validierungsfehler kompakt unter dem Formular ausgeben --}}
-                      
+                          {{-- Abdurrahman --}}
 
                           @error('last_name')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\Exists;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 /**
- * Verarbeitet die Registrierung über eine einzelne Invokable-Methode.
+ * Verarbeitet die Registrierung ueber eine einzelne Invokable-Methode.
  */
 class RegisterController extends Controller
 {
@@ -16,26 +16,24 @@ class RegisterController extends Controller
      */
     public function __invoke(Request $request)
     {
-        // 1) Eingabedaten prüfen
+        // 1) Eingabedaten pruefen
         $userdata = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email'],
-            'password' => ['required'],
+            'email' => ['required', 'email', Rule::unique('users', 'email')],
+            'password' => ['required', 'string', 'min:8'],
         ]);
 
-        // 2) Passwort hashen und Rohwert entfernen
-        $userdata['passwordhash'] = bcrypt($userdata['password']);
-        unset($userdata['password']);
+        // 2) Passwort hashen und nur das gehashte Feld speichern
+        $userdata['password'] = Hash::make($userdata['password']);
 
         // 3) Datensatz speichern
-        \App\Models\User::create($userdata);
+        $user = \App\Models\User::create($userdata);
 
         // 4) Einfache Erfolgs-/Fallback-Weiterleitung
-        if($userdata != null){
-            return redirect()->route('login'); 
+        if ($user !== null) {
+            return redirect()->route('login');
         }
-        else{
-            return redirect()->route('dashboard');
-        }
+
+        return redirect()->route('dashboard');
     }
 }
