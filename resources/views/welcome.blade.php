@@ -150,7 +150,7 @@
                           </label>
                           
                           <label>Telefonnummer
-                            <input type="text" name="phone_number" class="input input-bordered w-full"> 
+                            <input type="text" name="phone" class="input input-bordered w-full"> 
                           </label>
 
                           <label>Email
