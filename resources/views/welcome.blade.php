@@ -84,8 +84,8 @@
                                 <label for="service_id" class="label">
                                     <span class="label-text">Service</span>
                                 </label>
-                                <select name="service_id" id="service_id" class="select select-bordered w-full">
-                                    <option value="">Bitte waehlen</option>
+                                <select name="service_id" id="service_id" class="select select-bordered w-full bg-base-100 text-base-content">
+                                    <option value="">Bitte wählen</option>
                                     @foreach (\App\Models\Service::where('is_active', true)->orderBy('name')->get() as $service)
                                         <option value="{{ $service->id }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>
                                             {{ $service->name }} ({{ $service->duration }} Min)
