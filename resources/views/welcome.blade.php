@@ -77,14 +77,14 @@
                     <div class="card-body">
                         <h2 class="card-title">Formular</h2>
 
-                        <form action="{{ route('customer.store') }}" method="POST" id="booking-form" class="space-y-4">
+                        <form action="{{ route('customer.store') }}" method="POST" id="booking-form" class="space-y-4" autocomplete="off">
                             @csrf
 
                             <div>
                                 <label for="service_id" class="label">
                                     <span class="label-text">Service</span>
                                 </label>
-                                <select name="service_id" id="service_id" class="select select-bordered w-full bg-base-100 text-base-content">
+                                <select name="service_id" id="service_id" class="select select-bordered w-full bg-base-100 text-base-content" required>
                                     <option value="">Bitte wählen</option>
                                     @foreach (\App\Models\Service::where('is_active', true)->orderBy('name')->get() as $service)
                                         <option value="{{ $service->id }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>
@@ -102,7 +102,7 @@
                                     type="date"
                                     id="date"
                                     name="date"
-                                    value="{{ old('date') }}"
+                                    required
                                     class="input input-bordered w-full"
                                 >
                             </div>
@@ -111,10 +111,12 @@
                                 <div class="mb-2 font-semibold">Verfuegbare Zeitfenster</div>
                                 <div id="slots-container" class="grid grid-cols-2 gap-2"></div>
                                 <p id="slots-message" class="mt-2 text-sm text-base-content/70"></p>
+                                <p id="slot-selection-message" class="mt-2 text-sm text-error"></p>
                             </div>
 
-                            <input type="hidden" name="start_time" id="start_time" value="{{ old('start_time') }}">
-                            <input type="hidden" name="end_time" id="end_time" value="{{ old('end_time') }}">
+                            <input type="hidden" name="start_time" id="start_time" value="">
+                            <input type="hidden" name="end_time" id="end_time" value="">
+                            <input type="hidden" name="slot_confirmed" id="slot_confirmed" value="">
 
                             <div class="grid gap-4 md:grid-cols-2">
                                 <div>
@@ -198,14 +200,19 @@
             const dateEl = document.getElementById('date');
             const slotsContainer = document.getElementById('slots-container');
             const slotsMessage = document.getElementById('slots-message');
+            const slotSelectionMessage = document.getElementById('slot-selection-message');
             const startTimeEl = document.getElementById('start_time');
             const endTimeEl = document.getElementById('end_time');
+            const slotConfirmedEl = document.getElementById('slot_confirmed');
+            const bookingForm = document.getElementById('booking-form');
             const availabilityUrl = "{{ url('/availability') }}";
 
             function clearSlotSelection() {
                 startTimeEl.value = '';
                 endTimeEl.value = '';
+                slotConfirmedEl.value = '';
                 slotsContainer.innerHTML = '';
+                slotSelectionMessage.textContent = '';
             }
 
             function renderMessage(message) {
@@ -222,6 +229,8 @@
                 button.classList.add('btn-primary');
                 startTimeEl.value = slot.start_time;
                 endTimeEl.value = slot.end_time;
+                slotConfirmedEl.value = '1';
+                slotSelectionMessage.textContent = '';
             }
 
             function renderSlots(slots) {
@@ -279,6 +288,20 @@
 
             serviceEl.addEventListener('change', loadSlots);
             dateEl.addEventListener('change', loadSlots);
+
+            // Schutz gegen "stale" Browser-/Back-Button-Werte:
+            // ohne aktive Neuauswahl bleibt das Formular in leerem Zustand.
+            serviceEl.value = '';
+            dateEl.value = '';
+            clearSlotSelection();
+            renderMessage('Bitte zuerst Service und Datum waehlen.');
+
+            bookingForm.addEventListener('submit', function (event) {
+                if (!startTimeEl.value || !endTimeEl.value || slotConfirmedEl.value !== '1') {
+                    event.preventDefault();
+                    slotSelectionMessage.textContent = 'Bitte zuerst ein Zeitfenster auswaehlen.';
+                }
+            });
         });
     </script>
 </body>
