@@ -4,6 +4,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\AvailabilityController;
 
 // Startseite: Eingeloggte Nutzer direkt ins Dashboard leiten.
 Route::get('/', function () {
@@ -60,3 +61,5 @@ Route::get('customer', function () {
 })->name('customer');
 
 Route::post('customer', [CustomerController::class, 'store'])->name('customer.store'); //Kundendaten abspeichern
+
+Route::get('availability', [AvailabilityController::class, 'index'])->name('availability.index'); //Verfügbarkeitsabfrage

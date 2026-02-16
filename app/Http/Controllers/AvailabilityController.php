@@ -1,0 +1,71 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\BusinessHour;
+use App\Models\Service;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Http\Request;
+
+class AvailabilityController extends Controller
+{
+    public function index(Request $request)
+    {
+        $validated = $request->validate([
+            'date' => ['required', 'date'],
+            'service_id' => ['required', 'integer', 'exists:services,id'],
+        ]);
+
+        // 1) Service laden (wir brauchen die Dauer in Minuten)
+        $service = Service::findOrFail($validated['service_id']);
+
+        // 2) Wochentag aus Datum bestimmen (1=Montag ... 7=Sonntag)
+        $date = Carbon::parse($validated['date']);
+        $weekday = $date->isoWeekday();
+
+        // 3) Öffnungszeit für diesen Tag laden
+        $businessHour = BusinessHour::where('weekday', $weekday)->first();
+
+        // Sicherheitscheck: kein Eintrag oder geschlossen => keine Slots
+        if (!$businessHour || $businessHour->is_closed || !$businessHour->open_time || !$businessHour->close_time) {
+            return response()->json([
+                'date' => $validated['date'],
+                'service_id' => (int) $validated['service_id'],
+                'slots' => [],
+                'reason' => 'closed_or_no_business_hours',
+            ]);
+        }
+
+        // 4) Start/Ende des Arbeitstags auf das gewählte Datum setzen
+        $dayStart = Carbon::parse($validated['date'].' '.$businessHour->open_time);
+        $dayEnd = Carbon::parse($validated['date'].' '.$businessHour->close_time);
+
+        // 5) Slot-Raster (z. B. alle 15 Min)
+        $stepMinutes = 30;
+        $duration = (int) $service->duration;
+
+        $slots = [];
+        $period = CarbonPeriod::create($dayStart, $stepMinutes.' minutes', $dayEnd);
+
+        foreach ($period as $candidateStart) {
+            $candidateEnd = $candidateStart->copy()->addMinutes($duration);
+
+            // Slot nur zulassen, wenn Termin vollständig vor Schließzeit endet
+            if ($candidateEnd->lte($dayEnd)) {
+                $slots[] = [
+                    'start_time' => $candidateStart->format('H:i'),
+                    'end_time' => $candidateEnd->format('H:i'),
+                ];
+            }
+        }
+
+        return response()->json([
+            'date' => $validated['date'],
+            'service_id' => (int) $validated['service_id'],
+            'service_duration' => $duration,
+            'weekday' => $weekday,
+            'slots' => $slots,
+        ]);
+    }
+}
