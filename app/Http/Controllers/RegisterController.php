@@ -32,7 +32,7 @@ class RegisterController extends Controller
 
         // 4) Einfache Erfolgs-/Fallback-Weiterleitung
         if($userdata != null){
-            return redirect()->route('login');
+            return redirect()->route('login'); 
         }
         else{
             return redirect()->route('dashboard');

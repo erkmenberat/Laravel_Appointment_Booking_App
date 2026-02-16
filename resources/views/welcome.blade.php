@@ -131,7 +131,7 @@
                     {{-- Rechter Bereich: Kontaktdaten + Absenden --}}
 
                     <section>
-                      <form action="{{ route('patient.store') }}" method="POST">
+                      <form action="{{ route('customer.store') }}" method="POST">
                         @csrf 
 
                           <p>AnmeldeFormular</p>
@@ -147,10 +147,6 @@
 
                           <label>Nachname
                             <input type="text" name="last_name" class="input input-bordered w-full">
-                          </label>
-
-                          <label>Adresse
-                            <input type="text" name="address" class="input input-bordered w-full">
                           </label>
                           
                           <label>Telefonnummer
@@ -178,13 +174,19 @@
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                           @enderror
 
-                          @error('phone_number')
+                          @error('phone')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                           @enderror
 
                           @error('email')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                           @enderror
+
+                          @if ($errors->has('email') || $errors->has('phone'))
+                            <div class="alert alert-danger">
+                              {{ $errors->first('email') ?: $errors->first('phone') }}
+                            </div>
+                          @endif
                         </form>
                     </section>
                     

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
@@ -43,7 +44,7 @@ Route::post('/logout', function () {
     request()->session()->invalidate();
     request()->session()->regenerateToken();
 
-    return redirect('/'); // Alternativ: route('login')
+    return redirect('login'); 
 })->name('logout');
 
 
@@ -53,3 +54,9 @@ Route::get('welcome', function () {
 })->name('welcome');
 
 
+// Route für Kunden 
+Route::get('customer', function () {
+    return view('welcome');
+})->name('customer');
+
+Route::post('customer', [CustomerController::class, 'store'])->name('customer.store'); //Kundendaten abspeichern
