@@ -134,6 +134,14 @@
 }
     </style>
 
+    @if ($errors->any())
+        <div style="max-width:350px;margin-bottom:10px;color:#b91c1c;font-size:14px;">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
+
     {{-- Login-Formular mit CSRF-Schutz --}}
     <form class="form" action="{{ route('login.attempt') }}" method="POST">
         @csrf
@@ -141,7 +149,7 @@
     <p class="message">Lets Go!</p>
             
     <label>
-        <input name="email" required="" placeholder="" type="email" class="input">
+        <input name="email" required="" placeholder="" type="email" class="input" value="{{ old('email') }}">
         <span>Email</span>
     </label> 
         
@@ -157,4 +165,3 @@
     <p class="signin">Dont have an account yet? <a href="{{ route('register') }}">Register</a> </p>
 </form>
 </x-layout>
-

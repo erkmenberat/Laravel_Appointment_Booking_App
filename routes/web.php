@@ -1,12 +1,13 @@
 <?php
 
+use App\Http\Controllers\AdminAppointmentController;
+use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\LoginController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\AvailabilityController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
-// Startseite: Eingeloggte Nutzer direkt ins Dashboard leiten.
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
@@ -15,7 +16,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Authentifizierung: Login und Registrierung
 Route::get('login', function () {
     return view('auth.login');
 })->name('login');
@@ -28,38 +28,28 @@ Route::get('register', function () {
 
 Route::post('register', RegisterController::class)->name('register.store');
 
-Route::get('adminlogin', function () {
-    return view('auth.adminlogin');
-})->name('adminlogin');
-
-Route::post('adminlogin', LoginController::class)->name('adminlogin.attempt');
-
-// Geschützter Bereich: nur für authentifizierte Nutzer.
-Route::get('dashboard', function () {
-    return view('dashboard');
-})->middleware('auth')->name('dashboard');  
-
-// Logout: Session beenden und Token neu erzeugen.
 Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
 
-    return redirect('login'); 
+    return redirect('login');
 })->name('logout');
 
-
-// Direkte Route auf die Welcome-Seite.
 Route::get('welcome', function () {
     return view('welcome');
 })->name('welcome');
 
-
-// Route für Kunden 
 Route::get('customer', function () {
     return view('welcome');
 })->name('customer');
 
-Route::post('customer', [CustomerController::class, 'store'])->name('customer.store'); //Kundendaten abspeichern
+Route::post('customer', [CustomerController::class, 'store'])->name('customer.store');
+Route::get('availability', [AvailabilityController::class, 'index'])->name('availability.index');
 
-Route::get('availability', [AvailabilityController::class, 'index'])->name('availability.index'); //Verfügbarkeitsabfrage
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('dashboard', [AdminAppointmentController::class, 'index'])->name('dashboard');
+    Route::get('dashboard/appointments/{appointment}/edit', [AdminAppointmentController::class, 'edit'])->name('admin.appointments.edit');
+    Route::put('dashboard/appointments/{appointment}', [AdminAppointmentController::class, 'update'])->name('admin.appointments.update');
+    Route::post('dashboard/appointments/{appointment}/accept', [AdminAppointmentController::class, 'accept'])->name('admin.appointments.accept');
+});
