@@ -9,6 +9,7 @@ use App\Models\Service;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
@@ -90,16 +91,40 @@ class CustomerController extends Controller
             ]);
         }
 
-        Appointment::create([
-            'customer_id' => $customer->id,
-            'service_id' => (int) $validatedData['service_id'],
-            'staff_id' => null,
-            'date' => $validatedData['date'],
-            'start_time' => $validatedData['start_time'],
-            'end_time' => $validatedData['end_time'],
-            'status' => 'requested',
-            'customer_note' => $validatedData['note'] ?? null,
-        ]);
+        try {
+            DB::transaction(function () use ($customer, $validatedData) {
+                $hasConflict = Appointment::query()
+                    ->whereDate('date', $validatedData['date'])
+                    ->whereIn('status', ['requested', 'confirmed'])
+                    ->where('start_time', '<', $validatedData['end_time'])
+                    ->where('end_time', '>', $validatedData['start_time'])
+                    ->lockForUpdate()
+                    ->exists();
+
+                if ($hasConflict) {
+                    throw new \RuntimeException('slot_conflict');
+                }
+
+                Appointment::create([
+                    'customer_id' => $customer->id,
+                    'service_id' => (int) $validatedData['service_id'],
+                    'staff_id' => null,
+                    'date' => $validatedData['date'],
+                    'start_time' => $validatedData['start_time'],
+                    'end_time' => $validatedData['end_time'],
+                    'status' => 'requested',
+                    'customer_note' => $validatedData['note'] ?? null,
+                ]);
+            });
+        } catch (\RuntimeException $exception) {
+            if ($exception->getMessage() === 'slot_conflict') {
+                return back()
+                    ->withErrors(['start_time' => 'Dieses Zeitfenster wurde soeben angefragt oder bestaetigt. Bitte waehlen Sie ein anderes.'])
+                    ->withInput();
+            }
+
+            throw $exception;
+        }
 
         return redirect()->route('welcome')->with('success', 'Termin erfolgreich angefragt.');
     }

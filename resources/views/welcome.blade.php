@@ -241,16 +241,25 @@
                     return;
                 }
 
-                renderMessage('Bitte waehlen Sie ein Zeitfenster.');
+                renderMessage('Bitte waehlen Sie ein freies Zeitfenster.');
 
                 slots.forEach(function (slot) {
                     const button = document.createElement('button');
                     button.type = 'button';
-                    button.className = 'btn btn-outline w-full';
-                    button.textContent = slot.start_time + ' - ' + slot.end_time;
-                    button.addEventListener('click', function () {
-                        selectSlot(button, slot);
-                    });
+                    const isRequested = slot.status === 'requested';
+
+                    if (isRequested) {
+                        button.className = 'btn btn-disabled w-full';
+                        button.textContent = slot.start_time + ' - ' + slot.end_time + ' (Requested)';
+                        button.disabled = true;
+                    } else {
+                        button.className = 'btn btn-outline w-full';
+                        button.textContent = slot.start_time + ' - ' + slot.end_time;
+                        button.addEventListener('click', function () {
+                            selectSlot(button, slot);
+                        });
+                    }
+
                     slotsContainer.appendChild(button);
                 });
             }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Appointment;
 use App\Models\BusinessHour;
 use App\Models\Service;
 use Carbon\Carbon;
@@ -55,6 +56,11 @@ class AvailabilityController extends Controller
         $stepMinutes = $duration;
 
         $slots = [];
+        $blockingStatuses = ['requested', 'confirmed'];
+        $appointments = Appointment::query()
+            ->whereDate('date', $validated['date'])
+            ->whereIn('status', $blockingStatuses)
+            ->get(['start_time', 'end_time', 'status']);
         $period = CarbonPeriod::create($dayStart, $stepMinutes.' minutes', $dayEnd);
 
         foreach ($period as $candidateStart) {
@@ -62,9 +68,22 @@ class AvailabilityController extends Controller
 
             // Slot nur zulassen, wenn Termin vollständig vor Schließzeit endet
             if ($candidateEnd->lte($dayEnd)) {
+                $candidateStartTime = $candidateStart->format('H:i:s');
+                $candidateEndTime = $candidateEnd->format('H:i:s');
+
+                $overlapAppointment = $appointments->first(function ($appointment) use ($candidateStartTime, $candidateEndTime) {
+                    return $appointment->start_time < $candidateEndTime
+                        && $appointment->end_time > $candidateStartTime;
+                });
+
+                if ($overlapAppointment && $overlapAppointment->status === 'confirmed') {
+                    continue;
+                }
+
                 $slots[] = [
                     'start_time' => $candidateStart->format('H:i'),
                     'end_time' => $candidateEnd->format('H:i'),
+                    'status' => $overlapAppointment ? 'requested' : 'free',
                 ];
             }
         }
