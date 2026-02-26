@@ -16,6 +16,8 @@ class AdminAppointmentController extends Controller
 {
     public function index(): View
     {
+        $this->markPastConfirmedAppointmentsAsCompleted();
+
         $requestedAppointments = Appointment::query()
             ->with(['customer', 'service'])
             ->where('status', 'requested')
@@ -31,6 +33,14 @@ class AdminAppointmentController extends Controller
             ->limit(50)
             ->get();
 
+        $pastAppointments = Appointment::query()
+            ->with(['customer', 'service'])
+            ->where('status', 'completed')
+            ->orderByDesc('date')
+            ->orderByDesc('start_time')
+            ->limit(50)
+            ->get();
+
         $services = Service::query()
             ->where('is_active', true)
             ->orderBy('name')
@@ -39,6 +49,7 @@ class AdminAppointmentController extends Controller
         return view('admin.dashboard', [
             'requestedAppointments' => $requestedAppointments,
             'confirmedAppointments' => $confirmedAppointments,
+            'pastAppointments' => $pastAppointments,
             'services' => $services,
         ]);
     }
@@ -298,5 +309,23 @@ class AdminAppointmentController extends Controller
         }
 
         return false;
+    }
+
+    private function markPastConfirmedAppointmentsAsCompleted(): void
+    {
+        $now = now();
+
+        Appointment::query()
+            ->where('status', 'confirmed')
+            ->where(function ($query) use ($now) {
+                $query->whereDate('date', '<', $now->toDateString())
+                    ->orWhere(function ($subQuery) use ($now) {
+                        $subQuery->whereDate('date', $now->toDateString())
+                            ->whereTime('end_time', '<=', $now->format('H:i:s'));
+                    });
+            })
+            ->update([
+                'status' => 'completed',
+            ]);
     }
 }

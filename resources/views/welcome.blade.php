@@ -18,8 +18,8 @@
                             <img src="{{ asset('images/barber-logo.jpg') }}" alt="Barber Logo">
                         </div>
                         <div class="barber-navbar-brand-copy">
-                            <div class="barber-navbar-title">Dr. Steinbauer</div>
-                            <div class="barber-navbar-subtitle">Barber Terminbuchung</div>
+                            <div class="barber-navbar-title">Friseursalon</div>
+                            <div class="barber-navbar-subtitle">Terminbuchung</div>
                         </div>
                     </a>
 
@@ -61,7 +61,7 @@
                                 <img src="{{ asset('images/salon-design.jpg') }}" alt="Salon Interior">
                                 <div class="barber-photo-overlay">
                                     <div class="text-xs uppercase tracking-[0.2em] text-[#f0c08f]">Salon Atmosphaere</div>
-                                    <div class="text-sm text-[#e6d8c6]">Warm beleuchtetes Interior als visuelle Vorlage fuer das UI.</div>
+                                    <div class="text-sm text-[#e6d8c6]">Warm beleuchtetes Interior als visuelle Vorlage für das UI.</div>
                                 </div>
                             </div>
                         </div>
@@ -73,7 +73,7 @@
                             <div class="mb-4">
                                 <h2 class="barber-heading text-2xl font-semibold">Terminformular</h2>
                                 <p class="mt-2 text-sm text-[#c9bfb3]">
-                                    Bitte zuerst Service und Datum waehlen. Danach werden passende Zeitfenster geladen.
+                                    Bitte zuerst Service und Datum wählen. Danach werden passende Zeitfenster geladen.
                                 </p>
                             </div>
 
@@ -101,7 +101,7 @@
                                 <div>
                                     <label for="service_id" class="label"><span class="label-text">Service</span></label>
                                     <select name="service_id" id="service_id" class="select select-bordered w-full" required>
-                                        <option value="">Bitte waehlen</option>
+                                        <option value="">Bitte wählen</option>
                                         @foreach (\App\Models\Service::where('is_active', true)->orderBy('name')->get() as $service)
                                             <option value="{{ $service->id }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>
                                                 {{ $service->name }} ({{ $service->duration }} Min)
@@ -117,7 +117,7 @@
 
                                 {{-- Slot-Block wird durch JavaScript dynamisch mit Buttons gefuellt. --}}
                                 <div class="barber-panel-muted p-4">
-                                    <div class="mb-3 font-semibold text-[#f0c08f]">Verfuegbare Zeitfenster</div>
+                                    <div class="mb-3 font-semibold text-[#f0c08f]">Verfügbare Zeitfenster</div>
                                     <div id="slots-container" class="grid grid-cols-1 gap-2 sm:grid-cols-2"></div>
                                     <p id="slots-message" class="mt-3 text-sm text-[#c9bfb3]"></p>
                                     <p id="slot-selection-message" class="mt-2 text-sm text-[#f8a9a9]"></p>
@@ -241,7 +241,7 @@
                     return;
                 }
 
-                renderMessage('Bitte waehlen Sie ein freies Zeitfenster.');
+                renderMessage('Bitte wählen Sie ein freies Zeitfenster.');
 
                 slots.forEach(function (slot) {
                     const button = document.createElement('button');
@@ -250,7 +250,7 @@
 
                     if (isRequested) {
                         button.className = 'btn btn-disabled w-full';
-                        button.textContent = slot.start_time + ' - ' + slot.end_time + ' (Requested)';
+                        button.textContent = slot.start_time + ' - ' + slot.end_time + ' (Angefragt)';
                         button.disabled = true;
                     } else {
                         button.className = 'btn btn-outline w-full';
@@ -272,7 +272,7 @@
                 clearSlotSelection();
 
                 if (!serviceId || !date) {
-                    renderMessage('Bitte zuerst Service und Datum waehlen.');
+                    renderMessage('Bitte zuerst Service und Datum wählen.');
                     return;
                 }
 
@@ -303,13 +303,13 @@
             serviceEl.value = '';
             dateEl.value = '';
             clearSlotSelection();
-            renderMessage('Bitte zuerst Service und Datum waehlen.');
+            renderMessage('Bitte zuerst Service und Datum wählen.');
 
             // Verhindert Submit ohne aktiv gewaehlten Slot.
             bookingForm.addEventListener('submit', function (event) {
                 if (!startTimeEl.value || !endTimeEl.value || slotConfirmedEl.value !== '1') {
                     event.preventDefault();
-                    slotSelectionMessage.textContent = 'Bitte zuerst ein Zeitfenster auswaehlen.';
+                    slotSelectionMessage.textContent = 'Bitte zuerst ein Zeitfenster auswählen.';
                 }
             });
         });

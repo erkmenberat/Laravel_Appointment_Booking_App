@@ -62,12 +62,17 @@ class AvailabilityController extends Controller
             ->whereIn('status', $blockingStatuses)
             ->get(['start_time', 'end_time', 'status']);
         $period = CarbonPeriod::create($dayStart, $stepMinutes.' minutes', $dayEnd);
+        $now = now();
 
         foreach ($period as $candidateStart) {
             $candidateEnd = $candidateStart->copy()->addMinutes($duration);
 
             // Slot nur zulassen, wenn Termin vollständig vor Schließzeit endet
             if ($candidateEnd->lte($dayEnd)) {
+                if ($candidateStart->lt($now)) {
+                    continue;
+                }
+
                 $candidateStartTime = $candidateStart->format('H:i:s');
                 $candidateEndTime = $candidateEnd->format('H:i:s');
 

@@ -32,7 +32,6 @@
                     <div class="barber-navbar-actions">
                         <a href="{{ route('welcome') }}" class="btn btn-sm btn-outline">Startseite</a>
                         <a href="{{ route('login') }}" class="btn btn-sm btn-outline">Login</a>
-                        <a href="{{ route('register') }}" class="btn btn-sm btn-primary">Register</a>
                     </div>
                 </div>
             </header>

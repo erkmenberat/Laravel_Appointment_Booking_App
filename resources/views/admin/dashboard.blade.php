@@ -25,6 +25,7 @@
 
                     <div class="barber-navbar-actions">
                         <a href="{{ route('welcome') }}" class="btn btn-sm btn-outline">Buchungsseite</a>
+                        <a href="{{ route('register') }}" class="btn btn-sm btn-primary">Admin registrieren</a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-primary">Logout</button>
@@ -133,12 +134,12 @@
                         @endif
                     </section>
 
-                    {{-- Bestaetigte Termine als zweite Tabelle fuer schnellen Verlauf. --}}
+                    {{-- Kommende bestaetigte Termine bleiben separat von vergangenen Terminen. --}}
                     <section class="barber-panel p-5 md:p-6">
                         <div class="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                             <div>
-                                <h2 class="barber-heading text-2xl font-semibold">Bestätigte Termine (neueste 50)</h2>
-                                <p class="mt-1 text-sm text-[#c9bfb3]">Nur Leseansicht für schnellen Überblick.</p>
+                                <h2 class="barber-heading text-2xl font-semibold">Bestätigte Termine (kommend / aktiv)</h2>
+                                <p class="mt-1 text-sm text-[#c9bfb3]">Vergangene bestätigte Termine werden automatisch nach „Frühere Termine“ verschoben.</p>
                             </div>
                             <span class="barber-chip">{{ $confirmedAppointments->count() }} sichtbar</span>
                         </div>
@@ -174,6 +175,46 @@
                                                         </form>
                                                     </div>
                                                 </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </section>
+
+                    {{-- Abgelaufene bestaetigte Termine werden als completed in einer eigenen Historie gezeigt. --}}
+                    <section class="barber-panel p-5 md:p-6">
+                        <div class="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <h2 class="barber-heading text-2xl font-semibold">Frühere Termine (neueste 50)</h2>
+                                <p class="mt-1 text-sm text-[#c9bfb3]">Automatisch abgeschlossene, vergangene Termine.</p>
+                            </div>
+                            <span class="barber-chip">{{ $pastAppointments->count() }} sichtbar</span>
+                        </div>
+
+                        @if ($pastAppointments->isEmpty())
+                            <p class="text-sm text-[#c9bfb3]">Keine früheren Termine.</p>
+                        @else
+                            <div class="barber-table-wrap overflow-x-auto">
+                                <table class="barber-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Datum</th>
+                                            <th>Zeit</th>
+                                            <th>Kunde</th>
+                                            <th>Service</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($pastAppointments as $appointment)
+                                            <tr>
+                                                <td>{{ \Carbon\Carbon::parse($appointment->date)->format('d.m.Y') }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($appointment->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($appointment->end_time)->format('H:i') }}</td>
+                                                <td>{{ $appointment->customer?->first_name }} {{ $appointment->customer?->last_name }}</td>
+                                                <td>{{ $appointment->service?->name }}</td>
+                                                <td>Completed</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

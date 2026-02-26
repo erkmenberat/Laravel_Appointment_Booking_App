@@ -64,6 +64,13 @@ class CustomerController extends Controller
                 ->withInput();
         }
 
+        $requestedStart = Carbon::parse($validatedData['date'].' '.$validatedData['start_time']);
+        if ($requestedStart->lt(now())) {
+            return back()
+                ->withErrors(['start_time' => 'Vergangene Zeitfenster koennen nicht mehr angefragt werden.'])
+                ->withInput();
+        }
+
         $customer = Customer::query()
             ->when(
                 !empty($validatedData['email']),
@@ -93,6 +100,11 @@ class CustomerController extends Controller
 
         try {
             DB::transaction(function () use ($customer, $validatedData) {
+                $requestedStart = Carbon::parse($validatedData['date'].' '.$validatedData['start_time']);
+                if ($requestedStart->lt(now())) {
+                    throw new \RuntimeException('slot_in_past');
+                }
+
                 $hasConflict = Appointment::query()
                     ->whereDate('date', $validatedData['date'])
                     ->whereIn('status', ['requested', 'confirmed'])
@@ -120,6 +132,12 @@ class CustomerController extends Controller
             if ($exception->getMessage() === 'slot_conflict') {
                 return back()
                     ->withErrors(['start_time' => 'Dieses Zeitfenster wurde soeben angefragt oder bestaetigt. Bitte waehlen Sie ein anderes.'])
+                    ->withInput();
+            }
+
+            if ($exception->getMessage() === 'slot_in_past') {
+                return back()
+                    ->withErrors(['start_time' => 'Das Zeitfenster liegt inzwischen in der Vergangenheit. Bitte waehlen Sie ein neues.'])
                     ->withInput();
             }
 

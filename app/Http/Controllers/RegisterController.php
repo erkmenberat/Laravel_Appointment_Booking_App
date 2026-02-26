@@ -14,18 +14,20 @@ class RegisterController extends Controller
         $userdata = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', Rule::unique('users', 'email')],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         $userdata['password'] = Hash::make($userdata['password']);
-        $userdata['role'] = User::query()->where('role', 'admin')->exists() ? 'staff' : 'admin';
+        $userdata['role'] = 'admin';
 
         $user = User::create($userdata);
 
         if ($user !== null) {
-            return redirect()->route('login');
+            return redirect()->route('dashboard')->with('success', 'Neues Admin-Konto wurde erstellt.');
         }
 
-        return redirect()->route('dashboard');
+        return back()->withErrors([
+            'email' => 'Das Admin-Konto konnte nicht erstellt werden.',
+        ])->withInput();
     }
 }

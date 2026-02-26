@@ -52,9 +52,8 @@
         <button type="submit" class="btn btn-primary w-full">Einloggen</button>
     </form>
 
-    {{-- Secondary link gives quick access to admin registration. --}}
+    {{-- Hinweis: Registrierung ist nur im Admin-Dashboard verfuegbar. --}}
     <p class="mt-5 text-center text-sm text-[#c9bfb3]">
-        Noch kein Admin-Konto?
-        <a href="{{ route('register') }}" class="text-[#f0c08f] underline-offset-4 hover:underline">Zur Registrierung</a>
+        Neue Admin-Konten können nur im Admin-Dashboard erstellt werden.
     </p>
 </x-layout>

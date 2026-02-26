@@ -23,7 +23,7 @@
                                 <h1 class="barber-heading mt-2 text-2xl font-semibold">Termin bearbeiten</h1>
                             </div>
                         </div>
-                        <a href="{{ route('dashboard') }}" class="btn btn-outline btn-sm">Zurueck</a>
+                        <a href="{{ route('dashboard') }}" class="btn btn-outline btn-sm">Zurück zum Dashboard</a>
                     </div>
                 </section>
 

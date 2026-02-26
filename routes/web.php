@@ -22,12 +22,6 @@ Route::get('login', function () {
 
 Route::post('login', LoginController::class)->name('login.attempt');
 
-Route::get('register', function () {
-    return view('auth.register');
-})->name('register');
-
-Route::post('register', RegisterController::class)->name('register.store');
-
 Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
@@ -48,6 +42,11 @@ Route::post('customer', [CustomerController::class, 'store'])->name('customer.st
 Route::get('availability', [AvailabilityController::class, 'index'])->name('availability.index');
 
 Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('register', function () {
+        return view('auth.register');
+    })->name('register');
+    Route::post('register', RegisterController::class)->name('register.store');
+
     Route::get('dashboard', [AdminAppointmentController::class, 'index'])->name('dashboard');
     Route::get('dashboard/appointments/{appointment}/edit', [AdminAppointmentController::class, 'edit'])->name('admin.appointments.edit');
     Route::put('dashboard/appointments/{appointment}', [AdminAppointmentController::class, 'update'])->name('admin.appointments.update');
