@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
     <meta charset="utf-8">
@@ -6,193 +6,189 @@
     <title>{{ config('app.name', 'Terminplattform') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-base-200 text-base-content">
-    <header class="navbar bg-base-100 shadow-sm">
-        <div class="container mx-auto px-4">
-            <div class="flex w-full items-center justify-between">
-                <a href="{{ route('welcome') }}" class="text-lg font-semibold">Dr.Steinbauer</a>
-                <a href="{{ route('login') }}" class="btn btn-sm md:btn-md">Admin Login</a>
-            </div>
-        </div>
-    </header>
+<body class="barber-theme min-h-screen">
+    {{-- Globaler Bildhintergrund bleibt erhalten, aber das Layout ist jetzt klarer strukturiert. --}}
+    <div class="barber-page-shell">
+        <div class="barber-page-content">
+            {{-- Haupt-Navigation mit sauber platzierter Marke (Logo + Text) und Admin-CTA. --}}
+            <header class="barber-navbar-shell">
+                <div class="barber-navbar barber-panel">
+                    <a href="{{ route('welcome') }}" class="barber-navbar-brand">
+                        <div class="barber-logo-frame barber-logo-frame--nav">
+                            <img src="{{ asset('images/barber-logo.jpg') }}" alt="Barber Logo">
+                        </div>
+                        <div class="barber-navbar-brand-copy">
+                            <div class="barber-navbar-title">Dr. Steinbauer</div>
+                            <div class="barber-navbar-subtitle">Barber Terminbuchung</div>
+                        </div>
+                    </a>
 
-    <main class="container mx-auto px-4 py-8">
-        <div class="mx-auto max-w-5xl">
-            <div class="mb-6">
-                <h1 class="text-3xl font-bold">Termin anfragen</h1>
-                <p class="mt-2 text-base-content/70">
-                    Waehlen Sie Service, Datum und ein verfuegbares Zeitfenster.
-                </p>
-            </div>
-
-            @if (session('success'))
-                <div class="alert alert-success mb-4">
-                    <span>{{ session('success') }}</span>
+                    <div class="barber-navbar-actions">
+                        <a href="{{ route('login') }}" class="btn btn-primary btn-sm md:btn-md">Admin Login</a>
+                    </div>
                 </div>
-            @endif
+            </header>
 
-            @if ($errors->any())
-                <div class="alert alert-error mb-4">
-                    <ul class="list-disc pl-5">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+            <main class="px-4 py-6 md:px-6 md:py-8">
+                <div class="barber-stack">
+                    {{-- Hero-Bereich: Branding links, Salonfoto rechts. --}}
+                    <section class="barber-panel p-5 md:p-6">
+                        <div class="barber-hero-grid">
+                            <div class="flex flex-col justify-center">
+                                <div class="mb-3 flex flex-wrap gap-2">
+                                    <span class="barber-badge">Online Booking</span>
+                                    <span class="barber-chip">Salon Look</span>
+                                    <span class="barber-chip">Kupfer / Anthrazit</span>
+                                </div>
 
-            <div class="grid gap-6 lg:grid-cols-2">
-                <section class="card bg-base-100 shadow-md">
-                    <div class="card-body">
-                        <h2 class="card-title">Information</h2>
-                        <p class="text-sm text-base-content/70">
-                            Bitte waehlen Sie zuerst den Service und danach ein Datum.
-                            Die verfuegbaren Zeiten werden automatisch geladen.
-                        </p>
-
-                        <div class="divider my-2"></div>
-
-                        <div class="space-y-3 text-sm">
-                            <div class="rounded-box bg-base-200 p-3">
-                                <div class="font-semibold">Ablauf</div>
-                                <p class="mt-1 text-base-content/70">
-                                    1. Service waehlen
-                                    2. Datum waehlen
-                                    3. Slot waehlen
-                                    4. Kontaktdaten absenden
+                                <h1 class="barber-heading text-3xl font-semibold leading-tight md:text-4xl">
+                                    Termine anfragen, passend zum Stil eures Salons
+                                </h1>
+                                <p class="mt-3 text-sm leading-6 text-[#c9bfb3] md:text-base">
+                                    Das Farbschema orientiert sich am bereitgestellten Logo und dem Salonfoto.
+                                    Die Seite ist jetzt kompakter aufgebaut: oben Branding, darunter direkt das Formular.
                                 </p>
+
+                                {{-- Kleine Info-Chips geben dem Hero mehr Struktur, ohne zu ueberladen. --}}
+                                <div class="mt-5 flex flex-wrap gap-2">
+                                    <span class="barber-chip">Schnelle Anfrage</span>
+                                    <span class="barber-chip">Slot-Auswahl live</span>
+                                    <span class="barber-chip">Mobil nutzbar</span>
+                                </div>
                             </div>
-                            <div class="rounded-box bg-base-200 p-3">
-                                <div class="font-semibold">Hinweis</div>
-                                <p class="mt-1 text-base-content/70">
-                                    Falls keine Zeiten angezeigt werden, ist der Tag geschlossen
-                                    oder bereits voll belegt.
-                                </p>
+
+                            <div class="barber-panel-muted barber-photo-card">
+                                <img src="{{ asset('images/salon-design.jpg') }}" alt="Salon Interior">
+                                <div class="barber-photo-overlay">
+                                    <div class="text-xs uppercase tracking-[0.2em] text-[#f0c08f]">Salon Atmosphaere</div>
+                                    <div class="text-sm text-[#e6d8c6]">Warm beleuchtetes Interior als visuelle Vorlage fuer das UI.</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                <section class="card bg-base-100 shadow-md">
-                    <div class="card-body">
-                        <h2 class="card-title">Formular</h2>
-
-                        <form action="{{ route('customer.store') }}" method="POST" id="booking-form" class="space-y-4" autocomplete="off">
-                            @csrf
-
-                            <div>
-                                <label for="service_id" class="label">
-                                    <span class="label-text">Service</span>
-                                </label>
-                                <select name="service_id" id="service_id" class="select select-bordered w-full bg-base-100 text-base-content" required>
-                                    <option value="">Bitte wählen</option>
-                                    @foreach (\App\Models\Service::where('is_active', true)->orderBy('name')->get() as $service)
-                                        <option value="{{ $service->id }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>
-                                            {{ $service->name }} ({{ $service->duration }} Min)
-                                        </option>
-                                    @endforeach
-                                </select>
+                    {{-- Unterer Bereich: Formular links (Fokus), Infos rechts (Unterstuetzung). --}}
+                    <section class="barber-two-col">
+                        <div class="barber-panel p-5 md:p-6">
+                            <div class="mb-4">
+                                <h2 class="barber-heading text-2xl font-semibold">Terminformular</h2>
+                                <p class="mt-2 text-sm text-[#c9bfb3]">
+                                    Bitte zuerst Service und Datum waehlen. Danach werden passende Zeitfenster geladen.
+                                </p>
                             </div>
 
-                            <div>
-                                <label for="date" class="label">
-                                    <span class="label-text">Datum</span>
-                                </label>
-                                <input
-                                    type="date"
-                                    id="date"
-                                    name="date"
-                                    required
-                                    class="input input-bordered w-full"
-                                >
-                            </div>
+                            {{-- Erfolgsmeldung nach dem Absenden der Anfrage. --}}
+                            @if (session('success'))
+                                <div class="alert alert-success mb-4">
+                                    <span>{{ session('success') }}</span>
+                                </div>
+                            @endif
 
-                            <div>
-                                <div class="mb-2 font-semibold">Verfuegbare Zeitfenster</div>
-                                <div id="slots-container" class="grid grid-cols-2 gap-2"></div>
-                                <p id="slots-message" class="mt-2 text-sm text-base-content/70"></p>
-                                <p id="slot-selection-message" class="mt-2 text-sm text-error"></p>
-                            </div>
+                            {{-- Validierungsfehler direkt ueber dem Formular anzeigen. --}}
+                            @if ($errors->any())
+                                <div class="alert alert-error mb-4">
+                                    <ul class="list-disc pl-5">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
 
-                            <input type="hidden" name="start_time" id="start_time" value="">
-                            <input type="hidden" name="end_time" id="end_time" value="">
-                            <input type="hidden" name="slot_confirmed" id="slot_confirmed" value="">
+                            <form action="{{ route('customer.store') }}" method="POST" id="booking-form" class="space-y-4" autocomplete="off">
+                                @csrf
 
-                            <div class="grid gap-4 md:grid-cols-2">
                                 <div>
-                                    <label for="first_name" class="label">
-                                        <span class="label-text">Vorname</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="first_name"
-                                        name="first_name"
-                                        value="{{ old('first_name') }}"
-                                        class="input input-bordered w-full"
-                                    >
+                                    <label for="service_id" class="label"><span class="label-text">Service</span></label>
+                                    <select name="service_id" id="service_id" class="select select-bordered w-full" required>
+                                        <option value="">Bitte waehlen</option>
+                                        @foreach (\App\Models\Service::where('is_active', true)->orderBy('name')->get() as $service)
+                                            <option value="{{ $service->id }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>
+                                                {{ $service->name }} ({{ $service->duration }} Min)
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
 
                                 <div>
-                                    <label for="last_name" class="label">
-                                        <span class="label-text">Nachname</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="last_name"
-                                        name="last_name"
-                                        value="{{ old('last_name') }}"
-                                        class="input input-bordered w-full"
-                                    >
+                                    <label for="date" class="label"><span class="label-text">Datum</span></label>
+                                    <input type="date" id="date" name="date" required class="input input-bordered w-full">
                                 </div>
-                            </div>
 
-                            <div class="grid gap-4 md:grid-cols-2">
+                                {{-- Slot-Block wird durch JavaScript dynamisch mit Buttons gefuellt. --}}
+                                <div class="barber-panel-muted p-4">
+                                    <div class="mb-3 font-semibold text-[#f0c08f]">Verfuegbare Zeitfenster</div>
+                                    <div id="slots-container" class="grid grid-cols-1 gap-2 sm:grid-cols-2"></div>
+                                    <p id="slots-message" class="mt-3 text-sm text-[#c9bfb3]"></p>
+                                    <p id="slot-selection-message" class="mt-2 text-sm text-[#f8a9a9]"></p>
+                                </div>
+
+                                {{-- Hidden Inputs speichern den aktiv gewaehlten Slot fuer den Submit. --}}
+                                <input type="hidden" name="start_time" id="start_time" value="">
+                                <input type="hidden" name="end_time" id="end_time" value="">
+                                <input type="hidden" name="slot_confirmed" id="slot_confirmed" value="">
+
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    <div>
+                                        <label for="first_name" class="label"><span class="label-text">Vorname</span></label>
+                                        <input type="text" id="first_name" name="first_name" value="{{ old('first_name') }}" class="input input-bordered w-full">
+                                    </div>
+                                    <div>
+                                        <label for="last_name" class="label"><span class="label-text">Nachname</span></label>
+                                        <input type="text" id="last_name" name="last_name" value="{{ old('last_name') }}" class="input input-bordered w-full">
+                                    </div>
+                                </div>
+
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    <div>
+                                        <label for="phone" class="label"><span class="label-text">Telefon</span></label>
+                                        <input type="text" id="phone" name="phone" value="{{ old('phone') }}" class="input input-bordered w-full">
+                                    </div>
+                                    <div>
+                                        <label for="email" class="label"><span class="label-text">E-Mail</span></label>
+                                        <input type="email" id="email" name="email" value="{{ old('email') }}" class="input input-bordered w-full">
+                                    </div>
+                                </div>
+
                                 <div>
-                                    <label for="phone" class="label">
-                                        <span class="label-text">Telefon</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="phone"
-                                        name="phone"
-                                        value="{{ old('phone') }}"
-                                        class="input input-bordered w-full"
-                                    >
+                                    <label for="note" class="label"><span class="label-text">Notiz (optional)</span></label>
+                                    <textarea id="note" name="note" rows="3" class="textarea textarea-bordered w-full">{{ old('note') }}</textarea>
                                 </div>
 
-                                <div>
-                                    <label for="email" class="label">
-                                        <span class="label-text">E-Mail</span>
-                                    </label>
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        name="email"
-                                        value="{{ old('email') }}"
-                                        class="input input-bordered w-full"
-                                    >
+                                {{-- Hauptaktion sendet die Anfrage erst nach erfolgreicher Slot-Auswahl. --}}
+                                <button type="submit" class="btn btn-primary w-full">Termin anfragen</button>
+                            </form>
+                        </div>
+
+                        <div class="flex flex-col gap-4">
+                            {{-- Rechte Spalte liefert Erklaerungen und schafft visuelles Gleichgewicht zum Formular. --}}
+                            <section class="barber-panel p-5">
+                                <h2 class="barber-heading text-xl font-semibold">So funktioniert es</h2>
+                                <ol class="mt-4 space-y-3 text-sm text-[#c9bfb3]">
+                                    <li><span class="text-[#f0c08f]">1.</span> Service auswaehlen</li>
+                                    <li><span class="text-[#f0c08f]">2.</span> Datum auswaehlen</li>
+                                    <li><span class="text-[#f0c08f]">3.</span> Freien Slot anklicken</li>
+                                    <li><span class="text-[#f0c08f]">4.</span> Kontaktdaten absenden</li>
+                                </ol>
+                            </section>
+
+                            <section class="barber-panel p-5">
+                                <h2 class="barber-heading text-xl font-semibold">Hinweise</h2>
+                                <div class="mt-4 space-y-3 text-sm text-[#c9bfb3]">
+                                    <p class="barber-panel-muted p-3">
+                                        Wenn keine Zeiten angezeigt werden, ist der Tag geschlossen oder bereits voll belegt.
+                                    </p>
+                                    <p class="barber-panel-muted p-3">
+                                        Bereits angefragte Slots sind sichtbar, aber nicht mehr auswählbar.
+                                    </p>
                                 </div>
-                            </div>
-
-                            <div>
-                                <label for="note" class="label">
-                                    <span class="label-text">Notiz (optional)</span>
-                                </label>
-                                <textarea
-                                    id="note"
-                                    name="note"
-                                    rows="3"
-                                    class="textarea textarea-bordered w-full"
-                                >{{ old('note') }}</textarea>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-full">Termin anfragen</button>
-                        </form>
-                    </div>
-                </section>
-            </div>
+                            </section>
+                        </div>
+                    </section>
+                </div>
+            </main>
         </div>
-    </main>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -207,6 +203,7 @@
             const bookingForm = document.getElementById('booking-form');
             const availabilityUrl = "{{ url('/availability') }}";
 
+            // Setzt den Slotbereich und die versteckten Felder nach Aenderungen zurueck.
             function clearSlotSelection() {
                 startTimeEl.value = '';
                 endTimeEl.value = '';
@@ -215,10 +212,12 @@
                 slotSelectionMessage.textContent = '';
             }
 
+            // Schreibt Statushinweise unter den Slotbereich.
             function renderMessage(message) {
                 slotsMessage.textContent = message;
             }
 
+            // Markiert den gewaehlten Slot-Button und speichert die Zeiten in Hidden Inputs.
             function selectSlot(button, slot) {
                 document.querySelectorAll('#slots-container button').forEach(function (item) {
                     item.classList.remove('btn-primary');
@@ -233,6 +232,7 @@
                 slotSelectionMessage.textContent = '';
             }
 
+            // Rendert freie und bereits angefragte Slots in derselben Grid-Struktur.
             function renderSlots(slots) {
                 clearSlotSelection();
 
@@ -264,6 +264,7 @@
                 });
             }
 
+            // Laedt Verfuegbarkeiten passend zu Service + Datum vom bestehenden Endpoint.
             async function loadSlots() {
                 const serviceId = serviceEl.value;
                 const date = dateEl.value;
@@ -298,13 +299,13 @@
             serviceEl.addEventListener('change', loadSlots);
             dateEl.addEventListener('change', loadSlots);
 
-            // Schutz gegen "stale" Browser-/Back-Button-Werte:
-            // ohne aktive Neuauswahl bleibt das Formular in leerem Zustand.
+            // Verhindert veraltete Browserwerte nach Zurueck-Button / Autofill.
             serviceEl.value = '';
             dateEl.value = '';
             clearSlotSelection();
             renderMessage('Bitte zuerst Service und Datum waehlen.');
 
+            // Verhindert Submit ohne aktiv gewaehlten Slot.
             bookingForm.addEventListener('submit', function (event) {
                 if (!startTimeEl.value || !endTimeEl.value || slotConfirmedEl.value !== '1') {
                     event.preventDefault();

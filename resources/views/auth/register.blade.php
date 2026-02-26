@@ -1,169 +1,55 @@
-<x-layout>
+<x-layout title="Admin Registrierung">
+    {{-- Intro clarifies that this page creates admin accounts. --}}
+    <div class="mb-6">
+        <span class="barber-badge">Admin Setup</span>
+        <h1 class="barber-heading mt-3 text-3xl font-semibold">Registrierung</h1>
+        <p class="mt-2 text-sm text-[#c9bfb3]">
+            Neues Admin-Konto anlegen, um Anfragen freizugeben und Termine zu verwalten.
+        </p>
+    </div>
 
-{{-- Lokale Formular-Styles nur für diese Seite --}}
-<style>
-    /* Stilvorlage für das Registrierungsformular */ 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 350px;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 20px;
-  position: relative;
-}
+    {{-- Validation block is shared in style with login and other views. --}}
+    @if ($errors->any())
+        <div class="alert alert-error mb-4">
+            <ul class="list-disc pl-5 text-sm">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-.title {
-  font-size: 28px;
-  color: royalblue;
-  font-weight: 600;
-  letter-spacing: -1px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding-left: 30px;
-}
-
-.title::before,.title::after {
-  position: absolute;
-  content: "";
-  height: 16px;
-  width: 16px;
-  border-radius: 50%;
-  left: 0px;
-  background-color: royalblue;
-}
-
-.title::before {
-  width: 18px;
-  height: 18px;
-  background-color: royalblue;
-}
-
-.title::after {
-  width: 18px;
-  height: 18px;
-  animation: pulse 1s linear infinite;
-}
-
-.message, .signin {
-  color: rgba(88, 87, 87, 0.822);
-  font-size: 14px;
-}
-
-.signin {
-  text-align: center;
-}
-
-.signin a {
-  color: royalblue;
-}
-
-.signin a:hover {
-  text-decoration: underline royalblue;
-}
-
-.flex {
-  display: flex;
-  width: 100%;
-  gap: 6px;
-}
-
-.form label {
-  position: relative;
-}
-
-.form label .input {
-  width: 100%;
-  padding: 10px 10px 20px 10px;
-  outline: 0;
-  border: 1px solid rgba(105, 105, 105, 0.397);
-  border-radius: 10px;
-}
-
-.form label .input + span {
-  position: absolute;
-  left: 10px;
-  top: 15px;
-  color: grey;
-  font-size: 0.9em;
-  cursor: text;
-  transition: 0.3s ease;
-}
-
-.form label .input:placeholder-shown + span {
-  top: 15px;
-  font-size: 0.9em;
-}
-
-.form label .input:focus + span,.form label .input:valid + span {
-  top: 30px;
-  font-size: 0.7em;
-  font-weight: 600;
-}
-
-.form label .input:valid + span {
-  color: green;
-}
-
-.submit {
-  border: none;
-  outline: none;
-  background-color: royalblue;
-  padding: 10px;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 16px;
-  transform: .3s ease;
-}
-
-.submit:hover {
-  background-color: rgb(56, 90, 194);
-}
-
-@keyframes pulse {
-  from {
-    transform: scale(0.9);
-    opacity: 1;
-  }
-
-  to {
-    transform: scale(1.8);
-    opacity: 0;
-  }
-}
-</style>
-
-{{-- Registrierungsformular mit CSRF-Schutz --}}
-<form class="form" action="{{ route('register.store') }}" method="POST">
-    
+    {{-- Registration form keeps existing backend route names unchanged. --}}
+    <form action="{{ route('register.store') }}" method="POST" class="space-y-4">
         @csrf
 
-        <p class="title">Register </p>
-    <p class="message">Signup now as a Admin</p>
+        <div>
+            <label for="name" class="label"><span class="label-text">Name</span></label>
+            <input id="name" name="name" type="text" class="input input-bordered w-full" value="{{ old('name') }}" required>
+        </div>
 
-    <label>
-        <input name="name" required placeholder="" type="text" class="input">
-        <span>Name</span>
-    </label>
+        <div>
+            <label for="email" class="label"><span class="label-text">E-Mail</span></label>
+            <input id="email" name="email" type="email" class="input input-bordered w-full" value="{{ old('email') }}" required>
+        </div>
 
-    <label>
-        <input name="email" required placeholder="" type="email" class="input">
-        <span>Email</span>
-    </label>
+        <div>
+            <label for="password" class="label"><span class="label-text">Passwort</span></label>
+            <input id="password" name="password" type="password" class="input input-bordered w-full" required>
+        </div>
 
-    <label>
-        <input name="password" required placeholder="" type="password" class="input">
-        <span>Password</span>
-    </label>
+        <div>
+            <label for="password_confirmation" class="label"><span class="label-text">Passwort bestaetigen</span></label>
+            <input id="password_confirmation" name="password_confirmation" type="password" class="input input-bordered w-full" required>
+        </div>
 
-    <label>
-        <input name="password_confirmation" required placeholder="" type="password" class="input">
-        <span>Confirm Password</span>
-    </label>
+        {{-- Main action button for account creation. --}}
+        <button class="btn btn-primary w-full" type="submit">Admin-Konto erstellen</button>
+    </form>
 
-    <button class="submit" type="submit">Submit</button>
-    <p class="signin">Already have an account ? <a href="{{ route('login') }}">Login</a> </p>
-</form>
+    {{-- Back-link to login for existing admins. --}}
+    <p class="mt-5 text-center text-sm text-[#c9bfb3]">
+        Bereits registriert?
+        <a href="{{ route('login') }}" class="text-[#f0c08f] underline-offset-4 hover:underline">Zum Login</a>
+    </p>
 </x-layout>

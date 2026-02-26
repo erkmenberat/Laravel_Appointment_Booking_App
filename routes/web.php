@@ -52,4 +52,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('dashboard/appointments/{appointment}/edit', [AdminAppointmentController::class, 'edit'])->name('admin.appointments.edit');
     Route::put('dashboard/appointments/{appointment}', [AdminAppointmentController::class, 'update'])->name('admin.appointments.update');
     Route::post('dashboard/appointments/{appointment}/accept', [AdminAppointmentController::class, 'accept'])->name('admin.appointments.accept');
+    Route::post('dashboard/appointments/{appointment}/reject', [AdminAppointmentController::class, 'reject'])->name('admin.appointments.reject');
+    Route::post('dashboard/appointments/{appointment}/cancel', [AdminAppointmentController::class, 'cancel'])->name('admin.appointments.cancel');
 });

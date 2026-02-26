@@ -1,13 +1,517 @@
-/* Lädt Tailwind-Basis und Utility-Klassen. */
+/* Loads Tailwind base and utility classes. */
 @import "tailwindcss";
 
-/* Quellen, die Tailwind beim Klassen-Scan berücksichtigen soll. */
+/* Files Tailwind should scan for class names. */
 @source "../**/*.blade.php";
 @source "../**/*.js";
 @source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
 @source "../../storage/framework/views/*.php";
 
-/* DaisyUI-Plugin mit aktivierten Light-/Dark-Themes. */
+/* DaisyUI remains active; Barber-specific styles below override the visual language. */
 @plugin "daisyui" {
    themes: light --default, dark --prefersdark;
- }
+}
+
+/* Global Barber palette:
+   derived from the provided logo (dark anthracite + copper) and salon image (warm light accents). */
+:root {
+    --barber-bg: #141417;
+    --barber-panel: rgba(26, 26, 29, 0.9);
+    --barber-panel-strong: rgba(20, 20, 23, 0.94);
+    --barber-border: rgba(217, 162, 104, 0.24);
+    --barber-border-strong: rgba(217, 162, 104, 0.45);
+    --barber-text: #f5efe7;
+    --barber-text-soft: #c9bfb3;
+    --barber-accent: #d9a268;
+    --barber-accent-strong: #bf8243;
+    --barber-accent-soft: #f0c08f;
+    --barber-shadow: 0 20px 55px rgba(0, 0, 0, 0.45);
+}
+
+/* Shared base styling for every page using the Barber theme. */
+.barber-theme {
+    color: var(--barber-text);
+    background:
+        radial-gradient(circle at 10% 10%, rgba(217, 162, 104, 0.08), transparent 45%),
+        radial-gradient(circle at 90% 15%, rgba(240, 192, 143, 0.05), transparent 40%),
+        #141417;
+    font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+.barber-theme h1,
+.barber-theme h2,
+.barber-theme h3,
+.barber-theme .barber-heading {
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: 0.02em;
+}
+
+/* Page-wide salon image background with dark overlay for readability. */
+.barber-page-shell {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.barber-page-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(135deg, rgba(10, 10, 12, 0.88), rgba(10, 10, 12, 0.7)),
+        url("/images/salon-design.jpg") center / cover no-repeat;
+    filter: saturate(0.95) brightness(0.62);
+    transform: scale(1.03);
+}
+
+.barber-page-shell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(20, 20, 23, 0.1), rgba(20, 20, 23, 0.78));
+}
+
+.barber-page-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Reusable glass panel style for cards, forms and sections. */
+.barber-panel {
+    background: linear-gradient(180deg, var(--barber-panel), var(--barber-panel-strong));
+    border: 1px solid var(--barber-border);
+    box-shadow: var(--barber-shadow);
+    border-radius: 1.25rem;
+    backdrop-filter: blur(10px);
+}
+
+.barber-panel-muted {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1rem;
+}
+
+.barber-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--barber-border-strong);
+    color: var(--barber-accent-soft);
+    background: rgba(217, 162, 104, 0.08);
+    border-radius: 999px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.barber-logo-frame {
+    width: 84px;
+    height: 84px;
+    border-radius: 1.1rem;
+    border: 1px solid var(--barber-border);
+    background: rgba(255, 255, 255, 0.02);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.barber-logo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #19191c;
+    padding: 0.35rem;
+}
+
+.barber-brand-title {
+    color: var(--barber-text);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.barber-brand-subtitle {
+    color: var(--barber-text-soft);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+}
+
+/* Form controls keep DaisyUI behavior but receive Barber colors. */
+.barber-theme .input,
+.barber-theme .select,
+.barber-theme .textarea {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(217, 162, 104, 0.18);
+    color: var(--barber-text);
+}
+
+.barber-theme .input:focus,
+.barber-theme .select:focus,
+.barber-theme .textarea:focus {
+    outline: none;
+    border-color: var(--barber-border-strong);
+    box-shadow: 0 0 0 3px rgba(217, 162, 104, 0.12);
+}
+
+.barber-theme .input::placeholder,
+.barber-theme .textarea::placeholder {
+    color: #b8aea4;
+}
+
+.barber-theme .label-text {
+    color: var(--barber-text-soft);
+}
+
+/* Button overrides are global so existing JS class toggles still work. */
+.barber-theme .btn {
+    border-radius: 0.9rem;
+    border-color: rgba(217, 162, 104, 0.3);
+    color: var(--barber-text);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.barber-theme .btn:hover {
+    border-color: rgba(217, 162, 104, 0.45);
+    background: rgba(217, 162, 104, 0.08);
+}
+
+.barber-theme .btn-primary {
+    background: linear-gradient(135deg, var(--barber-accent), var(--barber-accent-strong));
+    border-color: transparent;
+    color: #1a130d;
+    font-weight: 700;
+}
+
+.barber-theme .btn-outline {
+    background: transparent;
+    border-color: rgba(217, 162, 104, 0.32);
+}
+
+.barber-theme .btn-success {
+    background: rgba(47, 143, 98, 0.18);
+    border-color: rgba(47, 143, 98, 0.45);
+    color: #b7f0d4;
+}
+
+.barber-theme .btn-warning {
+    background: rgba(183, 122, 51, 0.18);
+    border-color: rgba(183, 122, 51, 0.45);
+    color: #ffd9b0;
+}
+
+.barber-theme .btn-disabled,
+.barber-theme .btn[disabled] {
+    opacity: 0.55;
+    color: #d6cec6;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Dark-theme alerts with subtle semantic colors. */
+.barber-theme .alert {
+    border-radius: 1rem;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--barber-text);
+}
+
+.barber-theme .alert-success {
+    border-color: rgba(47, 143, 98, 0.35);
+    background: rgba(47, 143, 98, 0.1);
+}
+
+.barber-theme .alert-error {
+    border-color: rgba(178, 67, 67, 0.35);
+    background: rgba(178, 67, 67, 0.1);
+}
+
+/* Admin table wrapper and row styling. */
+.barber-table-wrap {
+    border-radius: 1rem;
+    border: 1px solid rgba(217, 162, 104, 0.14);
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.barber-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.barber-table th,
+.barber-table td {
+    padding: 0.85rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    vertical-align: top;
+}
+
+.barber-table thead th {
+    color: var(--barber-accent-soft);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.barber-table tbody tr:hover {
+    background: rgba(217, 162, 104, 0.03);
+}
+
+/* Small helper chips for metadata blocks. */
+.barber-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(217, 162, 104, 0.22);
+    background: rgba(217, 162, 104, 0.05);
+    color: var(--barber-text-soft);
+    padding: 0.25rem 0.65rem;
+    font-size: 0.75rem;
+}
+
+.barber-divider {
+    height: 1px;
+    background: linear-gradient(90deg, rgba(217, 162, 104, 0), rgba(217, 162, 104, 0.4), rgba(217, 162, 104, 0));
+}
+
+/* Reusable shell used by x-layout for auth and user pages. */
+.barber-split-shell {
+    min-height: 100vh;
+    display: grid;
+    align-items: center;
+    padding: 1rem;
+}
+
+.barber-split-frame {
+    width: min(1100px, 100%);
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 1rem;
+}
+
+.barber-split-frame--wide {
+    width: min(1200px, 100%);
+    grid-template-columns: 1fr;
+}
+
+.barber-showcase {
+    position: relative;
+    min-height: 280px;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    border: 1px solid var(--barber-border);
+    box-shadow: var(--barber-shadow);
+    background: #111;
+}
+
+.barber-showcase img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.55) saturate(0.9);
+}
+
+.barber-showcase-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 10, 12, 0.15), rgba(10, 10, 12, 0.84));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.25rem;
+    gap: 0.65rem;
+}
+
+.barber-content-panel {
+    padding: 1.25rem;
+}
+
+.barber-content-panel--wide {
+    padding: 1.5rem;
+}
+
+/* Konsistente Navbar fuer Welcome/Auth/Admin: Logo links, Aktionen rechts, ohne Layout-Spruenge. */
+.barber-navbar-shell {
+    padding: 1rem 1rem 0;
+}
+
+.barber-navbar {
+    width: min(1200px, 100%);
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    padding: 0.7rem 0.95rem;
+}
+
+.barber-navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+    text-decoration: none;
+    color: inherit;
+}
+
+.barber-navbar-brand-copy {
+    min-width: 0;
+}
+
+.barber-navbar-title {
+    color: var(--barber-text);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1.05;
+    white-space: nowrap;
+    font-size: 0.92rem;
+}
+
+.barber-navbar-subtitle {
+    color: var(--barber-text-soft);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.barber-navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Kleine Logo-Variante speziell fuer die Navbar, damit das Bild nie ausbricht. */
+.barber-logo-frame--nav {
+    width: 46px;
+    height: 46px;
+    border-radius: 0.8rem;
+    background: rgba(255, 255, 255, 0.01);
+    border-color: rgba(217, 162, 104, 0.2);
+}
+
+.barber-logo-frame--nav img {
+    padding: 0;
+    object-fit: cover;
+    object-position: center;
+    transform: scale(1.18);
+    background: transparent;
+}
+
+/* Welcome-Page Layout: erst Hero, danach Formular + Infos fuer bessere Hierarchie. */
+.barber-stack {
+    width: min(1200px, 100%);
+    margin-inline: auto;
+    display: grid;
+    gap: 1rem;
+}
+
+.barber-hero-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.barber-two-col {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 1rem;
+}
+
+.barber-photo-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 280px;
+}
+
+.barber-photo-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.78) saturate(0.92);
+}
+
+.barber-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(20, 20, 23, 0.08), rgba(20, 20, 23, 0.78));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1rem;
+    gap: 0.45rem;
+}
+
+/* Auth-Seiten: kompakter, klarer Split mit sauberer Oberkante. */
+.barber-auth-shell {
+    width: min(1100px, 100%);
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: 1fr 460px;
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.barber-auth-panel {
+    padding: 1.4rem;
+}
+
+.barber-auth-showcase {
+    min-height: 540px;
+}
+
+/* Tabellenaktionsbereich bleibt lesbar auf kleineren Breiten. */
+.barber-actions-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+/* Utility for image headers used in welcome/admin pages. */
+.barber-hero-image {
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid rgba(217, 162, 104, 0.18);
+    min-height: 210px;
+    background: #111;
+}
+
+.barber-hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.8) saturate(0.95);
+}
+
+/* Mobile adjustment keeps the design readable on phones. */
+@media (max-width: 900px) {
+    .barber-split-frame {
+        grid-template-columns: 1fr;
+    }
+
+    .barber-showcase {
+        min-height: 220px;
+    }
+
+    .barber-hero-grid,
+    .barber-two-col,
+    .barber-auth-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .barber-auth-showcase {
+        min-height: 240px;
+        order: -1;
+    }
+
+    .barber-navbar-title,
+    .barber-navbar-subtitle {
+        white-space: normal;
+    }
+}

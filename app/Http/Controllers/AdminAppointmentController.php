@@ -195,6 +195,74 @@ class AdminAppointmentController extends Controller
             ->with('success', 'Termin wurde bestaetigt.');
     }
 
+    public function reject(Appointment $appointment): RedirectResponse
+    {
+        try {
+            DB::transaction(function () use ($appointment) {
+                $target = Appointment::query()
+                    ->whereKey($appointment->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                // Ablehnen ist nur fuer offene Anfragen gedacht, damit die Aktion eindeutig bleibt.
+                if ($target->status !== 'requested') {
+                    throw new \RuntimeException('invalid_status');
+                }
+
+                $target->status = 'cancelled';
+                $target->cancel_reason = 'Vom Admin abgelehnt.';
+                $target->cancelled_at = now();
+                $target->save();
+            });
+        } catch (\RuntimeException $exception) {
+            if ($exception->getMessage() === 'invalid_status') {
+                return back()->withErrors(['reject' => 'Nur angefragte Termine koennen abgelehnt werden.']);
+            }
+
+            throw $exception;
+        }
+
+        return redirect()
+            ->route('dashboard')
+            ->with('success', 'Anfrage wurde abgelehnt.');
+    }
+
+    public function cancel(Appointment $appointment): RedirectResponse
+    {
+        try {
+            DB::transaction(function () use ($appointment) {
+                $target = Appointment::query()
+                    ->whereKey($appointment->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                // Stornieren soll fuer bestaetigte (und optional angefragte) Termine moeglich sein,
+                // aber nicht erneut auf bereits abgeschlossene/stornierte Termine angewendet werden.
+                if (in_array($target->status, ['cancelled', 'completed'], true)) {
+                    throw new \RuntimeException('invalid_status');
+                }
+
+                $wasConfirmed = $target->status === 'confirmed';
+                $target->status = 'cancelled';
+                $target->cancel_reason = $wasConfirmed
+                    ? 'Vom Admin storniert (bestaetigter Termin).'
+                    : 'Vom Admin storniert.';
+                $target->cancelled_at = now();
+                $target->save();
+            });
+        } catch (\RuntimeException $exception) {
+            if ($exception->getMessage() === 'invalid_status') {
+                return back()->withErrors(['cancel' => 'Dieser Termin kann nicht storniert werden.']);
+            }
+
+            throw $exception;
+        }
+
+        return redirect()
+            ->route('dashboard')
+            ->with('success', 'Termin wurde storniert.');
+    }
+
     private function isSlotInsideBusinessHours(
         string $date,
         string $startTime,
@@ -232,4 +300,3 @@ class AdminAppointmentController extends Controller
         return false;
     }
 }
-
