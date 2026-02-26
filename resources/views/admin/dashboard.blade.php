@@ -40,9 +40,9 @@
                         <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                             <div>
                                 <span class="barber-badge">Terminverwaltung</span>
-                                <h1 class="barber-heading mt-3 text-3xl font-semibold">Admin Uebersicht</h1>
+                                <h1 class="barber-heading mt-3 text-3xl font-semibold">Admin Übersicht</h1>
                                 <p class="mt-2 text-sm text-[#c9bfb3]">
-                                    Offene Anfragen bearbeiten, bestaetigte Termine pruefen und Verfuegbarkeiten kontrollieren.
+                                    Offene Anfragen bearbeiten, bestätigte Termine prüfen und Verfügbarkeiten kontrollieren.
                                 </p>
                             </div>
                             <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -51,7 +51,7 @@
                                     <div class="mt-1 text-2xl font-semibold text-[#f0c08f]">{{ $requestedAppointments->count() }}</div>
                                 </div>
                                 <div class="barber-panel-muted p-3 text-center">
-                                    <div class="text-xs uppercase tracking-[0.16em] text-[#c9bfb3]">Bestaetigt</div>
+                                    <div class="text-xs uppercase tracking-[0.16em] text-[#c9bfb3]">Bestätigt</div>
                                     <div class="mt-1 text-2xl font-semibold text-[#f0c08f]">{{ $confirmedAppointments->count() }}</div>
                                 </div>
                                 <div class="barber-panel-muted p-3 text-center">
@@ -115,7 +115,7 @@
                                                     <div class="barber-actions-inline">
                                                         <form method="POST" action="{{ route('admin.appointments.accept', $appointment) }}">
                                                             @csrf
-                                                            <button type="submit" class="btn btn-xs btn-success">Accept</button>
+                                                            <button type="submit" class="btn btn-xs btn-success">Akzeptieren</button>
                                                         </form>
                                                         {{-- Ablehnen storniert die offene Anfrage direkt aus der Uebersicht. --}}
                                                         <form method="POST" action="{{ route('admin.appointments.reject', $appointment) }}">
@@ -137,14 +137,14 @@
                     <section class="barber-panel p-5 md:p-6">
                         <div class="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                             <div>
-                                <h2 class="barber-heading text-2xl font-semibold">Bestaetigte Termine (neueste 50)</h2>
-                                <p class="mt-1 text-sm text-[#c9bfb3]">Nur Leseansicht fuer schnellen Ueberblick.</p>
+                                <h2 class="barber-heading text-2xl font-semibold">Bestätigte Termine (neueste 50)</h2>
+                                <p class="mt-1 text-sm text-[#c9bfb3]">Nur Leseansicht für schnellen Überblick.</p>
                             </div>
                             <span class="barber-chip">{{ $confirmedAppointments->count() }} sichtbar</span>
                         </div>
 
                         @if ($confirmedAppointments->isEmpty())
-                            <p class="text-sm text-[#c9bfb3]">Keine bestaetigten Termine.</p>
+                            <p class="text-sm text-[#c9bfb3]">Keine bestätigten Termine.</p>
                         @else
                             <div class="barber-table-wrap overflow-x-auto">
                                 <table class="barber-table">
@@ -185,9 +185,9 @@
                     {{-- Verfuegbarkeits-Check bleibt technisch gleich, ist aber optisch neu gruppiert. --}}
                     <section class="barber-panel p-5 md:p-6">
                         <div class="mb-4">
-                            <h2 class="barber-heading text-2xl font-semibold">Verfuegbarkeit pruefen</h2>
+                            <h2 class="barber-heading text-2xl font-semibold">Verfügbarkeit prüfen</h2>
                             <p class="mt-2 text-sm text-[#c9bfb3]">
-                                Freie und angefragte Slots werden angezeigt. Bestaetigte Slots bleiben ausgeblendet.
+                                Freie und angefragte Slots werden angezeigt. Bestätigte Slots bleiben ausgeblendet.
                             </p>
                         </div>
 
@@ -195,7 +195,7 @@
                             <div>
                                 <label for="service_id" class="label"><span class="label-text">Service</span></label>
                                 <select id="service_id" class="select select-bordered w-full">
-                                    <option value="">Bitte waehlen</option>
+                                    <option value="">Bitte wählen</option>
                                     @foreach ($services as $service)
                                         <option value="{{ $service->id }}">{{ $service->name }} ({{ $service->duration }} Min)</option>
                                     @endforeach
