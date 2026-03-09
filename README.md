@@ -3,6 +3,11 @@
 A web-based appointment booking application for hair salons and similar businesses, built with **Laravel 12** and **Tailwind CSS**.
 
 ---
+<img width="1426" height="855" alt="Screenshot 2026-03-09 105326" src="https://github.com/user-attachments/assets/cd8c10f9-7b4a-45bd-b5d8-b89fa70ecfd3" />
+<img width="1412" height="858" alt="Screenshot 2026-03-09 105404" src="https://github.com/user-attachments/assets/f3e3253e-ec91-419d-82d5-6edf1a006ee9" />
+<img width="943" height="824" alt="Screenshot 2026-03-09 105458" src="https://github.com/user-attachments/assets/529c952a-b42d-445c-9fc6-cfec16143293" />
+
+---
 
 ## Features
 
