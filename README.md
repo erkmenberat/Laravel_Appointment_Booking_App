@@ -1,59 +1,166 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Appointment Booking App
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A web-based appointment booking application for hair salons and similar businesses, built with **Laravel 12** and **Tailwind CSS**.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Customer Side
+- Browse available services and select a date
+- Fetch available time slots in real time (AJAX)
+- Submit appointment requests with contact details
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Admin Panel
+- Dashboard with appointment stages: requested, confirmed, completed
+- Accept or reject appointment requests
+- Edit appointment details and cancel bookings
+- Manage admin accounts, business hours, and services
 
-## Learning Laravel
+### Availability System
+- Slot calculation based on service duration, business hours, and existing appointments
+- Pessimistic database locking to prevent double-bookings
+- Automatic cancellation of overlapping requests upon confirmation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Tech Stack
 
-## Laravel Sponsors
+| Layer      | Technology                          |
+|------------|-------------------------------------|
+| Backend    | PHP 8.2+, Laravel 12                |
+| Frontend   | Tailwind CSS v4, DaisyUI v5, Vite 7 |
+| Database   | MySQL                               |
+| Testing    | Pest / PHPUnit                      |
+| Build      | Vite, Axios                         |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## Requirements
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- PHP >= 8.2
+- Composer
+- Node.js & npm
+- MySQL 5.7+
+- Git
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Installation
 
-## Code of Conduct
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd Appointment_Booking_App
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 2. Install PHP dependencies
+composer install
 
-## Security Vulnerabilities
+# 3. Set up environment file
+cp .env.example .env
+php artisan key:generate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Configure your database in `.env`:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=appointment_booking_app
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+```bash
+# 4. Run migrations
+php artisan migrate
+
+# 5. Install and build frontend assets
+npm install
+npm run build
+
+# 6. Start the development server
+php artisan serve
+npm run dev
+```
+
+> **Quick setup:** `composer run setup`
+
+---
+
+## Database Structure
+
+| Table            | Description                                     |
+|------------------|-------------------------------------------------|
+| `users`          | Admin/staff accounts (role, active status)      |
+| `customers`      | Customer data (name, phone, email)              |
+| `services`       | Offered services (duration in minutes, price)   |
+| `appointments`   | Appointments with full status lifecycle         |
+| `business_hours` | Business hours per weekday                      |
+| `time_off`       | Staff absence/time-off periods                  |
+| `notifications`  | Notification dispatch log                       |
+| `sessions`       | Database-backed Laravel sessions                |
+
+**Appointment Status Lifecycle:**
+
+```
+requested --> confirmed --> completed
+          \             \
+           cancelled     cancelled
+```
+
+---
+
+## Routes
+
+| Method    | Route                                       | Description                          |
+|-----------|---------------------------------------------|--------------------------------------|
+| GET       | `/`                                         | Landing page                         |
+| GET/POST  | `/login`                                    | Admin login                          |
+| POST      | `/logout`                                   | Logout                               |
+| GET/POST  | `/customer`                                 | Customer booking form                |
+| GET       | `/availability`                             | Available time slots (JSON/AJAX)     |
+| GET/POST  | `/register`                                 | Register new admin account           |
+| GET       | `/dashboard`                                | Admin dashboard                      |
+| GET/PUT   | `/dashboard/appointments/{id}`              | Edit appointment                     |
+| POST      | `/dashboard/appointments/{id}/{action}`     | Accept / reject / cancel appointment |
+
+---
+
+## Security
+
+- Admin routes protected by `auth` + `admin` middleware
+- `EnsureUserIsAdmin` middleware checks role and active status
+- New admins can only be registered by existing logged-in admins
+- CSRF protection on all POST routes
+- Transaction-based database operations
+
+---
+
+## Project Structure
+
+```
+Appointment_Booking_App/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/        # AppointmentController, CustomerController, etc.
+│   │   └── Middleware/         # EnsureUserIsAdmin
+│   └── Models/                 # Appointment, Customer, Service, User, ...
+├── database/
+│   └── migrations/             # All database migrations
+├── resources/
+│   ├── css/                    # Tailwind / custom styles
+│   ├── js/                     # Axios, frontend logic
+│   └── views/                  # Blade templates
+├── routes/
+│   └── web.php                 # All routes
+├── public/                     # Public assets
+└── vite.config.js              # Frontend build configuration
+```
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This is a private development project and is not released for public use or redistribution.

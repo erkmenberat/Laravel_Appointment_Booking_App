@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request) // Methode zum Anlegen eines neuen Kunden und Anfragen eines Termins
     {
-        $validatedData = $request->validate([
+        $validatedData = $request->validate([ // Validierung der Eingabedaten
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => ['nullable', 'email', 'required_without:phone'],
@@ -35,11 +35,11 @@ class CustomerController extends Controller
 
         if (!$businessHour || $businessHour->is_closed || !$businessHour->open_time || !$businessHour->close_time) {
             return back()
-                ->withErrors(['date' => 'Fuer dieses Datum sind keine Oeffnungszeiten hinterlegt.'])
+                ->withErrors(['date' => 'Für dieses Datum sind keine Öffnungszeiten hinterlegt.'])
                 ->withInput();
         }
 
-        // Der gewaehlte Slot muss aus dem aktuell berechneten Verfuegbarkeitsraster stammen.
+        // Der gewählte Slot muss aus dem aktuell berechneten Verfügbarkeitsraster stammen.
         $duration = (int) $service->duration;
         $dayStart = Carbon::parse($validatedData['date'].' '.$businessHour->open_time);
         $dayEnd = Carbon::parse($validatedData['date'].' '.$businessHour->close_time);
@@ -60,14 +60,14 @@ class CustomerController extends Controller
 
         if (!$slotIsValid) {
             return back()
-                ->withErrors(['start_time' => 'Bitte ein gueltiges Zeitfenster auswaehlen.'])
+                ->withErrors(['start_time' => 'Bitte ein gültiges Zeitfenster auswählen.'])
                 ->withInput();
         }
 
         $requestedStart = Carbon::parse($validatedData['date'].' '.$validatedData['start_time']);
         if ($requestedStart->lt(now())) {
             return back()
-                ->withErrors(['start_time' => 'Vergangene Zeitfenster koennen nicht mehr angefragt werden.'])
+                ->withErrors(['start_time' => 'Vergangene Zeitfenster können nicht mehr angefragt werden.'])
                 ->withInput();
         }
 
