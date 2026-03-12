@@ -70,6 +70,12 @@
                         </div>
                     @endif
 
+                    @if (session('warning'))
+                        <div class="alert alert-warning">
+                            <span>{{ session('warning') }}</span>
+                        </div>
+                    @endif
+
                     @if ($errors->any())
                         <div class="alert alert-error">
                             <ul class="list-disc pl-5">
@@ -107,11 +113,11 @@
                                     <tbody>
                                         @foreach ($requestedAppointments as $appointment)
                                             <tr>
-                                                <td>{{ \Carbon\Carbon::parse($appointment->date)->format('d.m.Y') }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($appointment->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($appointment->end_time)->format('H:i') }}</td>
-                                                <td>{{ $appointment->customer?->first_name }} {{ $appointment->customer?->last_name }}</td>
-                                                <td>{{ $appointment->service?->name }}</td>
-                                                <td>
+                                                <td data-label="Datum">{{ \Carbon\Carbon::parse($appointment->date)->format('d.m.Y') }}</td>
+                                                <td data-label="Zeit">{{ \Carbon\Carbon::parse($appointment->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($appointment->end_time)->format('H:i') }}</td>
+                                                <td data-label="Kunde">{{ $appointment->customer?->first_name }} {{ $appointment->customer?->last_name }}</td>
+                                                <td data-label="Service">{{ $appointment->service?->name }}</td>
+                                                <td data-label="Aktionen">
                                                     {{-- Aktionen bleiben bei bestehenden Routen/Controllern. --}}
                                                     <div class="barber-actions-inline">
                                                         <form method="POST" action="{{ route('admin.appointments.accept', $appointment) }}">
@@ -161,14 +167,23 @@
                                     <tbody>
                                         @foreach ($confirmedAppointments as $appointment)
                                             <tr>
-                                                <td>{{ \Carbon\Carbon::parse($appointment->date)->format('d.m.Y') }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($appointment->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($appointment->end_time)->format('H:i') }}</td>
-                                                <td>{{ $appointment->customer?->first_name }} {{ $appointment->customer?->last_name }}</td>
-                                                <td>{{ $appointment->service?->name }}</td>
-                                                <td>
+                                                <td data-label="Datum">{{ \Carbon\Carbon::parse($appointment->date)->format('d.m.Y') }}</td>
+                                                <td data-label="Zeit">{{ \Carbon\Carbon::parse($appointment->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($appointment->end_time)->format('H:i') }}</td>
+                                                <td data-label="Kunde">{{ $appointment->customer?->first_name }} {{ $appointment->customer?->last_name }}</td>
+                                                <td data-label="Service">{{ $appointment->service?->name }}</td>
+                                                <td data-label="Aktionen">
                                                     {{-- Auch bestaetigte Termine koennen bearbeitet oder storniert werden. --}}
                                                     <div class="barber-actions-inline">
                                                         <a href="{{ route('admin.appointments.edit', $appointment) }}" class="btn btn-xs btn-outline">Bearbeiten</a>
+                                                        <button type="button"
+                                                            class="btn btn-xs btn-primary btn-reschedule"
+                                                            data-id="{{ $appointment->id }}"
+                                                            data-date="{{ $appointment->date }}"
+                                                            data-start="{{ \Carbon\Carbon::parse($appointment->start_time)->format('H:i') }}"
+                                                            data-end="{{ \Carbon\Carbon::parse($appointment->end_time)->format('H:i') }}"
+                                                            data-action="{{ route('admin.appointments.reschedule', $appointment) }}">
+                                                            Verschieben
+                                                        </button>
                                                         <form method="POST" action="{{ route('admin.appointments.cancel', $appointment) }}">
                                                             @csrf
                                                             <button type="submit" class="btn btn-xs btn-warning">Stornieren</button>
@@ -210,11 +225,11 @@
                                     <tbody>
                                         @foreach ($pastAppointments as $appointment)
                                             <tr>
-                                                <td>{{ \Carbon\Carbon::parse($appointment->date)->format('d.m.Y') }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($appointment->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($appointment->end_time)->format('H:i') }}</td>
-                                                <td>{{ $appointment->customer?->first_name }} {{ $appointment->customer?->last_name }}</td>
-                                                <td>{{ $appointment->service?->name }}</td>
-                                                <td>Completed</td>
+                                                <td data-label="Datum">{{ \Carbon\Carbon::parse($appointment->date)->format('d.m.Y') }}</td>
+                                                <td data-label="Zeit">{{ \Carbon\Carbon::parse($appointment->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($appointment->end_time)->format('H:i') }}</td>
+                                                <td data-label="Kunde">{{ $appointment->customer?->first_name }} {{ $appointment->customer?->last_name }}</td>
+                                                <td data-label="Service">{{ $appointment->service?->name }}</td>
+                                                <td data-label="Status">Completed</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -257,8 +272,54 @@
         </div>
     </div>
 
+    {{-- Modal zum Verschieben eines bestätigten Termins --}}
+    <dialog id="reschedule-modal" class="barber-panel p-6 rounded-lg shadow-xl w-full max-w-md backdrop:bg-black/60">
+        <h3 class="barber-heading text-xl font-semibold mb-4">Termin verschieben</h3>
+        <form id="reschedule-form" method="POST">
+            @csrf
+            <div class="barber-stack gap-4">
+                <div>
+                    <label class="label"><span class="label-text">Neues Datum</span></label>
+                    <input type="date" name="date" id="reschedule-date" class="input input-bordered w-full" required>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="label"><span class="label-text">Von</span></label>
+                        <input type="time" name="start_time" id="reschedule-start" class="input input-bordered w-full" required>
+                    </div>
+                    <div>
+                        <label class="label"><span class="label-text">Bis</span></label>
+                        <input type="time" name="end_time" id="reschedule-end" class="input input-bordered w-full" required>
+                    </div>
+                </div>
+                <p class="text-xs text-[#c9bfb3]">Der Kunde erhält automatisch eine E-Mail-Benachrichtigung.</p>
+                <div class="flex gap-3 justify-end pt-2">
+                    <button type="button" id="reschedule-cancel" class="btn btn-sm btn-outline">Abbrechen</button>
+                    <button type="submit" class="btn btn-sm btn-primary">Verschieben</button>
+                </div>
+            </div>
+        </form>
+    </dialog>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('reschedule-modal');
+            const form  = document.getElementById('reschedule-form');
+
+            document.querySelectorAll('.btn-reschedule').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    form.action                                     = btn.dataset.action;
+                    document.getElementById('reschedule-date').value  = btn.dataset.date;
+                    document.getElementById('reschedule-start').value = btn.dataset.start;
+                    document.getElementById('reschedule-end').value   = btn.dataset.end;
+                    modal.showModal();
+                });
+            });
+
+            document.getElementById('reschedule-cancel').addEventListener('click', function () {
+                modal.close();
+            });
+
             const serviceEl = document.getElementById('service_id');
             const dateEl = document.getElementById('date');
             const slotsContainer = document.getElementById('slots-container');

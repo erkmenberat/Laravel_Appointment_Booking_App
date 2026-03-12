@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AdminAppointmentRequestMail;
 use App\Models\Appointment;
 use App\Models\BusinessHour;
 use App\Models\Customer;
 use App\Models\Service;
+use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class CustomerController extends Controller
 {
@@ -98,8 +102,10 @@ class CustomerController extends Controller
             ]);
         }
 
+        $createdAppointment = null;
+
         try {
-            DB::transaction(function () use ($customer, $validatedData) {
+            DB::transaction(function () use ($customer, $validatedData, &$createdAppointment) {
                 $requestedStart = Carbon::parse($validatedData['date'].' '.$validatedData['start_time']);
                 if ($requestedStart->lt(now())) {
                     throw new \RuntimeException('slot_in_past');
@@ -117,7 +123,7 @@ class CustomerController extends Controller
                     throw new \RuntimeException('slot_conflict');
                 }
 
-                Appointment::create([
+                $createdAppointment = Appointment::create([
                     'customer_id' => $customer->id,
                     'service_id' => (int) $validatedData['service_id'],
                     'staff_id' => null,
@@ -144,6 +150,41 @@ class CustomerController extends Controller
             throw $exception;
         }
 
+        if ($createdAppointment) {
+            $this->notifyAdminsAboutRequestedAppointment(
+                $createdAppointment->load(['customer', 'service'])
+            );
+        }
+
         return redirect()->route('welcome')->with('success', 'Termin erfolgreich angefragt.');
+    }
+
+    private function notifyAdminsAboutRequestedAppointment(Appointment $appointment): void
+    {
+        $admins = User::query()
+            ->where('role', 'admin')
+            ->where('is_active', true)
+            ->get(['id', 'name', 'email']);
+
+        if ($admins->isEmpty()) {
+            Log::warning('Keine aktiven Admins fuer Terminanfrage-Benachrichtigung gefunden.', [
+                'appointment_id' => $appointment->id,
+            ]);
+
+            return;
+        }
+
+        foreach ($admins as $admin) {
+            try {
+                Mail::to($admin->email)->send(new AdminAppointmentRequestMail($appointment));
+            } catch (\Exception $exception) {
+                Log::error('Admin-Mail fuer neue Terminanfrage fehlgeschlagen.', [
+                    'appointment_id' => $appointment->id,
+                    'admin_id' => $admin->id,
+                    'admin_email' => $admin->email,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
     }
 }

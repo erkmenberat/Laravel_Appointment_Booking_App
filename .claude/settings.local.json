@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"c:/Users/erkme/Desktop/Projects/Appointment_Booking_App/.env\"*)",
+      "Bash(find /c/Users/erkme/Desktop/Projects/Appointment_Booking_App -type f -name *.php -path */app/Mail/*)"
+    ]
+  }
+}

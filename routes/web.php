@@ -53,4 +53,5 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('dashboard/appointments/{appointment}/accept', [AdminAppointmentController::class, 'accept'])->name('admin.appointments.accept');
     Route::post('dashboard/appointments/{appointment}/reject', [AdminAppointmentController::class, 'reject'])->name('admin.appointments.reject');
     Route::post('dashboard/appointments/{appointment}/cancel', [AdminAppointmentController::class, 'cancel'])->name('admin.appointments.cancel');
+    Route::post('dashboard/appointments/{appointment}/reschedule', [AdminAppointmentController::class, 'reschedule'])->name('admin.appointments.reschedule');
 });
