@@ -1,4 +1,4 @@
-# Appointment Booking App  --> https://github.com/erkmenberat/Laravel_Appointment_Booking_App  <-- 
+# Appointment Booking App
 
 A web-based appointment booking application for hair salons and similar businesses, built with **Laravel 12** and **Tailwind CSS**.
 
