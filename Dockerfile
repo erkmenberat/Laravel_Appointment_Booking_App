@@ -17,15 +17,13 @@ RUN apk add --no-cache \
     freetype-dev \
     mysql-client
 
-# PHP-Extensions
+# PHP-Extensions (tokenizer and ctype are built into PHP 8.4 core)
 RUN docker-php-ext-install \
     pdo \
     pdo_mysql \
     mbstring \
     xml \
-    ctype \
     bcmath \
-    tokenizer \
     fileinfo \
     opcache
 
