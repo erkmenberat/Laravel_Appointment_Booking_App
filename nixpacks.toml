@@ -1,18 +1,11 @@
-[phases.setup]
-nixPkgs = ["php84", "php84Packages.composer", "nodejs_20", "npm-9_x"]
+[variables]
+NIXPACKS_PHP_VERSION = "8.4"
 
 [phases.install]
 cmds = [
     "composer install --optimize-autoloader --no-dev --no-interaction",
     "npm install",
     "npm run build"
-]
-
-[phases.build]
-cmds = [
-    "php artisan config:cache",
-    "php artisan route:cache",
-    "php artisan view:cache"
 ]
 
 [start]
