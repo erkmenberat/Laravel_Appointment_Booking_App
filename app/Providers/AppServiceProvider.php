@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -22,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // HTTPS erzwingen in Production (wichtig für Railway hinter Reverse Proxy)
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+        }
     }
 }

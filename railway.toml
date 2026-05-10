@@ -1,5 +1,9 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
 [deploy]
-startCommand = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
+startCommand = "php artisan migrate --force && supervisord -c /etc/supervisor/conf.d/supervisord.conf"
 healthcheckPath = "/"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
