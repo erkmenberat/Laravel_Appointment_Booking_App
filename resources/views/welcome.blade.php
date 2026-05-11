@@ -201,7 +201,7 @@
             const endTimeEl = document.getElementById('end_time');
             const slotConfirmedEl = document.getElementById('slot_confirmed');
             const bookingForm = document.getElementById('booking-form');
-            const availabilityUrl = "{{ url('/availability') }}";
+            const availabilityUrl = "{{ route('availability.index', [], false) }}";
 
             // Setzt den Slotbereich und die versteckten Felder nach Aenderungen zurueck.
             function clearSlotSelection() {

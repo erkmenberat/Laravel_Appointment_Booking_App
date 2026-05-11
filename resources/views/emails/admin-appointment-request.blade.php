@@ -2,9 +2,20 @@
 <html>
 <body style="font-family: sans-serif; color: #333; padding: 2rem;">
 
-    <h2>Neue Terminanfrage</h2>
+    @php
+        $titles = [
+            'requested' => 'Neue Terminanfrage',
+            'confirmed' => 'Termin wurde bestaetigt',
+            'rejected' => 'Terminanfrage wurde abgelehnt',
+            'cancelled' => 'Termin wurde storniert',
+            'rescheduled' => 'Termin wurde verschoben',
+            'updated' => 'Termin wurde aktualisiert',
+        ];
+    @endphp
 
-    <p>Es wurde eine neue Terminanfrage ueber das Buchungsformular erstellt.</p>
+    <h2>{{ $titles[$type] ?? 'Termin wurde aktualisiert' }}</h2>
+
+    <p>Es gibt eine Aktualisierung zu folgendem Termin.</p>
 
     <table style="border-collapse: collapse; width: 100%; max-width: 560px;">
         <tr>
@@ -25,7 +36,7 @@
         </tr>
         <tr>
             <td style="padding: 0.4rem 0; color: #888;">Datum:</td>
-            <td>{{ $appointment->date?->format('d.m.Y') }}</td>
+            <td>{{ \Carbon\Carbon::parse($appointment->date)->format('d.m.Y') }}</td>
         </tr>
         <tr>
             <td style="padding: 0.4rem 0; color: #888;">Zeit:</td>
@@ -39,10 +50,16 @@
             <td style="padding: 0.4rem 0; color: #888; vertical-align: top;">Notiz:</td>
             <td>{{ $appointment->customer_note ?: '-' }}</td>
         </tr>
+        @if ($appointment->cancel_reason)
+            <tr>
+                <td style="padding: 0.4rem 0; color: #888; vertical-align: top;">Grund:</td>
+                <td>{{ $appointment->cancel_reason }}</td>
+            </tr>
+        @endif
     </table>
 
     <p style="margin-top: 2rem;">
-        Bitte im Admin-Bereich pruefen und die Anfrage bestaetigen oder ablehnen.
+        Bitte im Admin-Bereich pruefen.
     </p>
 
     <p>

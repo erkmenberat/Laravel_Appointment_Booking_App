@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AdminAppointmentRequestMail;
+use App\Mail\AppointmentStatusMail;
 use App\Models\Appointment;
 use App\Models\BusinessHour;
 use App\Models\Customer;
@@ -151,15 +152,33 @@ class CustomerController extends Controller
         }
 
         if ($createdAppointment) {
-            $this->notifyAdminsAboutRequestedAppointment(
-                $createdAppointment->load(['customer', 'service'])
-            );
+            $appointmentForMail = $createdAppointment->load(['customer', 'service']);
+            $this->notifyCustomerAboutAppointment($appointmentForMail, 'requested');
+            $this->notifyAdminsAboutAppointment($appointmentForMail, 'requested');
         }
 
         return redirect()->route('welcome')->with('success', 'Termin erfolgreich angefragt.');
     }
 
-    private function notifyAdminsAboutRequestedAppointment(Appointment $appointment): void
+    private function notifyCustomerAboutAppointment(Appointment $appointment, string $type): void
+    {
+        if (!$appointment->customer?->email) {
+            return;
+        }
+
+        try {
+            Mail::to($appointment->customer->email)->send(new AppointmentStatusMail($appointment, $type));
+        } catch (\Exception $exception) {
+            Log::error('Kunden-Mail fuer Termin fehlgeschlagen.', [
+                'appointment_id' => $appointment->id,
+                'customer_email' => $appointment->customer->email,
+                'type' => $type,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    private function notifyAdminsAboutAppointment(Appointment $appointment, string $type): void
     {
         $admins = User::query()
             ->where('role', 'admin')
@@ -176,12 +195,13 @@ class CustomerController extends Controller
 
         foreach ($admins as $admin) {
             try {
-                Mail::to($admin->email)->send(new AdminAppointmentRequestMail($appointment));
+                Mail::to($admin->email)->send(new AdminAppointmentRequestMail($appointment, $type));
             } catch (\Exception $exception) {
-                Log::error('Admin-Mail fuer neue Terminanfrage fehlgeschlagen.', [
+                Log::error('Admin-Mail fuer Termin fehlgeschlagen.', [
                     'appointment_id' => $appointment->id,
                     'admin_id' => $admin->id,
                     'admin_email' => $admin->email,
+                    'type' => $type,
                     'error' => $exception->getMessage(),
                 ]);
             }

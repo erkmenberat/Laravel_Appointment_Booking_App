@@ -13,8 +13,10 @@ class AdminAppointmentRequestMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Appointment $appointment)
-    {
+    public function __construct(
+        public Appointment $appointment,
+        public string $type = 'requested'
+    ) {
     }
 
     public function envelope(): Envelope
@@ -24,10 +26,19 @@ class AdminAppointmentRequestMail extends Mailable
             $this->appointment->customer?->last_name,
         ])));
 
+        $subjects = [
+            'requested' => 'Neue Terminanfrage',
+            'confirmed' => 'Termin wurde bestaetigt',
+            'rejected' => 'Terminanfrage wurde abgelehnt',
+            'cancelled' => 'Termin wurde storniert',
+            'rescheduled' => 'Termin wurde verschoben',
+            'updated' => 'Termin wurde aktualisiert',
+        ];
+
+        $subject = $subjects[$this->type] ?? 'Termin wurde aktualisiert';
+
         return new Envelope(
-            subject: $customerName !== ''
-                ? 'Neue Terminanfrage von '.$customerName
-                : 'Neue Terminanfrage'
+            subject: $customerName !== '' ? $subject.' - '.$customerName : $subject
         );
     }
 

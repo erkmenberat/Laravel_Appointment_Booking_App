@@ -324,7 +324,7 @@
             const dateEl = document.getElementById('date');
             const slotsContainer = document.getElementById('slots-container');
             const slotsMessage = document.getElementById('slots-message');
-            const availabilityUrl = "{{ url('/availability') }}";
+            const availabilityUrl = "{{ route('availability.index', [], false) }}";
 
             // Schreibt Hinweistext unter den Admin-Slotbereich.
             function renderMessage(message) {

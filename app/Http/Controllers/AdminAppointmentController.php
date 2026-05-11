@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\BusinessHour;
 use App\Models\Service;
+use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use App\Mail\AdminAppointmentRequestMail;
 use App\Mail\AppointmentStatusMail;
 use Illuminate\Support\Facades\Mail;
 
@@ -94,14 +97,18 @@ class AdminAppointmentController extends Controller
                 ->withInput();
         }
 
+        $savedAppointment = null;
+        $notificationType = 'updated';
+
         try {
-            DB::transaction(function () use ($appointment, $validated) {
+            DB::transaction(function () use ($appointment, $validated, &$savedAppointment, &$notificationType) {
                 $freshAppointment = Appointment::query()
                     ->whereKey($appointment->id)
                     ->lockForUpdate()
                     ->firstOrFail();
 
                 $targetStatus = $validated['status'];
+                $previousStatus = $freshAppointment->status;
                 $shouldBlockSlot = in_array($targetStatus, ['requested', 'confirmed'], true);
 
                 if ($shouldBlockSlot) {
@@ -132,6 +139,14 @@ class AdminAppointmentController extends Controller
                     'cancelled_at' => $targetStatus === 'cancelled' ? now() : null,
                 ]);
                 $freshAppointment->save();
+
+                if ($previousStatus !== $targetStatus && $targetStatus === 'confirmed') {
+                    $notificationType = 'confirmed';
+                } elseif ($previousStatus !== $targetStatus && $targetStatus === 'cancelled') {
+                    $notificationType = 'cancelled';
+                }
+
+                $savedAppointment = $freshAppointment->load(['customer', 'service']);
             });
         } catch (\RuntimeException $exception) {
             if ($exception->getMessage() === 'slot_conflict') {
@@ -143,18 +158,24 @@ class AdminAppointmentController extends Controller
             throw $exception;
         }
 
+        $mailWarning = $savedAppointment
+            ? $this->notifyAppointmentParticipants($savedAppointment, $notificationType)
+            : null;
+
         return redirect()
             ->route('dashboard')
-            ->with('success', 'Termin wurde aktualisiert.');
+            ->with('success', 'Termin wurde aktualisiert.')
+            ->with('warning', $mailWarning);
     }
 
     public function accept(Appointment $appointment): RedirectResponse
     {
 
-        $savedAppointment = null;  // Variable, um den aktualisierten Termin
+        $savedAppointment = null;
+        $cancelledConflicts = collect();
 
         try {
-            DB::transaction(function () use ($appointment, &$savedAppointment) {
+            DB::transaction(function () use ($appointment, &$savedAppointment, &$cancelledConflicts) {
                 $target = Appointment::query()
                     ->whereKey($appointment->id)
                     ->lockForUpdate()
@@ -186,20 +207,25 @@ class AdminAppointmentController extends Controller
                 $target->save();
 
                 // 4. Konflikte mit anderen Terminen stornieren
-                Appointment::query()
+                $cancelledConflicts = Appointment::query()
                     ->whereDate('date', $target->date)
                     ->where('id', '!=', $target->id)
                     ->where('status', 'requested')
                     ->where('start_time', '<', $target->end_time)
                     ->where('end_time', '>', $target->start_time)
-                    ->update([
+                    ->with(['customer', 'service'])
+                    ->get();
+
+                foreach ($cancelledConflicts as $conflict) {
+                    $conflict->update([
                         'status' => 'cancelled',
                         'cancel_reason' => 'Zeitfenster bereits bestaetigt.',
                         'cancelled_at' => now(),
                     ]);
+                }
 
                 // 5. Ganz am Ende setzen, nach allen Checks und nach save()
-                $savedAppointment = $target->load('customer');
+                $savedAppointment = $target->load(['customer', 'service']);
             });
         } catch (\RuntimeException $exception) {
             if ($exception->getMessage() === 'invalid_status') {
@@ -213,16 +239,14 @@ class AdminAppointmentController extends Controller
             throw $exception;
         }
 
-        $mailWarning = null;
-        if ($savedAppointment?->customer?->email) {
-            try {
-                Mail::to($savedAppointment->customer->email)->send(
-                    new AppointmentStatusMail($savedAppointment, 'confirmed')
-                );
-            } catch (\Exception $e) {
-                \Log::error('Mail-Versand fehlgeschlagen', ['appointment_id' => $savedAppointment->id, 'error' => $e->getMessage()]);
-                $mailWarning = 'Termin gespeichert, aber E-Mail konnte nicht gesendet werden.';
-            }
+        $mailWarning = $savedAppointment
+            ? $this->notifyAppointmentParticipants($savedAppointment, 'confirmed')
+            : null;
+
+        foreach ($cancelledConflicts as $conflict) {
+            $conflict->refresh()->load(['customer', 'service']);
+            $conflictWarning = $this->notifyAppointmentParticipants($conflict, 'cancelled');
+            $mailWarning ??= $conflictWarning;
         }
 
         return redirect()
@@ -254,7 +278,7 @@ class AdminAppointmentController extends Controller
                 $target->save();
 
                 // 3. Ganz am Ende setzen, nach allen Checks und nach save()
-                $savedAppointment = $target->load('customer');
+                $savedAppointment = $target->load(['customer', 'service']);
             });
         } catch (\RuntimeException $exception) {
             if ($exception->getMessage() === 'invalid_status') {
@@ -264,17 +288,9 @@ class AdminAppointmentController extends Controller
             throw $exception;
         }
 
-        $mailWarning = null;
-        if ($savedAppointment?->customer?->email) {
-            try {
-                Mail::to($savedAppointment->customer->email)->send(
-                    new AppointmentStatusMail($savedAppointment, 'rejected')
-                );
-            } catch (\Exception $e) {
-                \Log::error('Mail-Versand fehlgeschlagen', ['appointment_id' => $savedAppointment->id, 'error' => $e->getMessage()]);
-                $mailWarning = 'Termin gespeichert, aber E-Mail konnte nicht gesendet werden.';
-            }
-        }
+        $mailWarning = $savedAppointment
+            ? $this->notifyAppointmentParticipants($savedAppointment, 'rejected')
+            : null;
 
         return redirect()
             ->route('dashboard')
@@ -308,7 +324,7 @@ class AdminAppointmentController extends Controller
                 $target->save();
 
                 // 3. Ganz am Ende setzen, nach allen Checks und nach save()
-                $savedAppointment = $target->load('customer');
+                $savedAppointment = $target->load(['customer', 'service']);
             });
         } catch (\RuntimeException $exception) {
             if ($exception->getMessage() === 'invalid_status') {
@@ -318,17 +334,9 @@ class AdminAppointmentController extends Controller
             throw $exception;
         }
 
-        $mailWarning = null;
-        if ($savedAppointment?->customer?->email) {
-            try {
-                Mail::to($savedAppointment->customer->email)->send(
-                    new AppointmentStatusMail($savedAppointment, 'cancelled')
-                );
-            } catch (\Exception $e) {
-                \Log::error('Mail-Versand fehlgeschlagen', ['appointment_id' => $savedAppointment->id, 'error' => $e->getMessage()]);
-                $mailWarning = 'Termin gespeichert, aber E-Mail konnte nicht gesendet werden.';
-            }
-        }
+        $mailWarning = $savedAppointment
+            ? $this->notifyAppointmentParticipants($savedAppointment, 'cancelled')
+            : null;
 
         return redirect()
             ->route('dashboard')
@@ -387,7 +395,7 @@ class AdminAppointmentController extends Controller
                 $target->end_time   = $validated['end_time'];
                 $target->save();
 
-                $savedAppointment = $target->load('customer');
+                $savedAppointment = $target->load(['customer', 'service']);
             });
         } catch (\RuntimeException $exception) {
             if ($exception->getMessage() === 'invalid_status') {
@@ -401,22 +409,66 @@ class AdminAppointmentController extends Controller
             throw $exception;
         }
 
-        $mailWarning = null;
-        if ($savedAppointment?->customer?->email) {
-            try {
-                Mail::to($savedAppointment->customer->email)->send(
-                    new AppointmentStatusMail($savedAppointment, 'rescheduled')
-                );
-            } catch (\Exception $e) {
-                \Log::error('Mail-Versand fehlgeschlagen', ['appointment_id' => $savedAppointment->id, 'error' => $e->getMessage()]);
-                $mailWarning = 'Termin gespeichert, aber E-Mail konnte nicht gesendet werden.';
-            }
-        }
+        $mailWarning = $savedAppointment
+            ? $this->notifyAppointmentParticipants($savedAppointment, 'rescheduled')
+            : null;
 
         return redirect()
             ->route('dashboard')
             ->with('success', 'Termin wurde verschoben.')
             ->with('warning', $mailWarning);
+    }
+
+    private function notifyAppointmentParticipants(Appointment $appointment, string $type): ?string
+    {
+        $failed = false;
+
+        if ($appointment->customer?->email) {
+            try {
+                Mail::to($appointment->customer->email)->send(
+                    new AppointmentStatusMail($appointment, $type)
+                );
+            } catch (\Exception $exception) {
+                $failed = true;
+                Log::error('Kunden-Mail fuer Termin fehlgeschlagen.', [
+                    'appointment_id' => $appointment->id,
+                    'customer_email' => $appointment->customer->email,
+                    'type' => $type,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        $admins = User::query()
+            ->where('role', 'admin')
+            ->where('is_active', true)
+            ->get(['id', 'name', 'email']);
+
+        if ($admins->isEmpty()) {
+            Log::warning('Keine aktiven Admins fuer Termin-Benachrichtigung gefunden.', [
+                'appointment_id' => $appointment->id,
+                'type' => $type,
+            ]);
+        }
+
+        foreach ($admins as $admin) {
+            try {
+                Mail::to($admin->email)->send(
+                    new AdminAppointmentRequestMail($appointment, $type)
+                );
+            } catch (\Exception $exception) {
+                $failed = true;
+                Log::error('Admin-Mail fuer Termin fehlgeschlagen.', [
+                    'appointment_id' => $appointment->id,
+                    'admin_id' => $admin->id,
+                    'admin_email' => $admin->email,
+                    'type' => $type,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        return $failed ? 'Termin gespeichert, aber mindestens eine E-Mail konnte nicht gesendet werden.' : null;
     }
 
     private function isSlotInsideBusinessHours(
