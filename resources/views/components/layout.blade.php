@@ -23,7 +23,7 @@
                             <img src="{{ asset('images/barber-logo.jpg') }}" alt="Barber Logo">
                         </div>
                         <div class="barber-navbar-brand-copy">
-                            <div class="barber-navbar-title">Dr. Steinbauer</div>
+                            <div class="barber-navbar-title">FRISEURSALON</div>
                             <div class="barber-navbar-subtitle">Barber Terminbuchung</div>
                         </div>
                     </a>
