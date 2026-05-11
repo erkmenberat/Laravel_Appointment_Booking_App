@@ -46,7 +46,10 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($hours as $hour) {
-            BusinessHour::create($hour);
+            BusinessHour::updateOrCreate(
+                ['weekday' => $hour['weekday']],
+                $hour
+            );
         }
     }
 }
